@@ -143,3 +143,20 @@
 @utility animate-float-y { animation: float-y 6s ease-in-out infinite; }
 @utility animate-grid-pan { animation: grid-pan 20s linear infinite; }
 @utility animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+@keyframes caret-blink {
+  50% { border-color: transparent }
+}
+
+@utility terminal-caret {
+  border-right: 2px solid var(--cyan);
+  animation: caret-blink 0.8s step-end infinite;
+}
+
+@utility premium-shadow {
+  box-shadow: 0 20px 40px -15px rgba(2, 12, 27, 0.7);
+}
+
+@utility ambient-cyan-glow {
+  background: radial-gradient(circle 250px at var(--x, 0px) var(--y, 0px), rgba(100, 255, 218, 0.12), transparent 80%);
+}

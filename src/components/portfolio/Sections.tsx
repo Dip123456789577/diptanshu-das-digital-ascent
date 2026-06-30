@@ -3,6 +3,7 @@ import { motion, useInView, useMotionValue, useSpring, useTransform } from "fram
 import {
   Download, ArrowUpRight, Github, Linkedin, Mail, Twitter, ExternalLink,
   Code2, Server, PenTool, Zap, Award, GraduationCap, Briefcase,
+  FileJson, FileCode2, Terminal as TerminalIcon,
 } from "lucide-react";
 import profileImg from "@/assets/profile.jpg";
 import projectLuminal from "@/assets/project-luminal.jpg";
@@ -11,10 +12,10 @@ import projectOrbit from "@/assets/project-orbit.jpg";
 import { FloatingParticles } from "./Background";
 
 /* ---------- Shared atoms ---------- */
-function SectionLabel({ index, title }: { index: string; title: string }) {
+function SectionLabel({ index, title }: { index?: string; title: string }) {
   return (
     <div className="mb-12 flex items-center gap-4">
-      <span className="font-mono text-sm text-cyan">{index}.</span>
+      {index && <span className="font-mono text-sm text-cyan">{index}.</span>}
       <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-light">{title}</h2>
       <div className="ml-2 h-px flex-1 max-w-[240px] bg-navy-lighter" />
     </div>
@@ -24,9 +25,350 @@ function SectionLabel({ index, title }: { index: string; title: string }) {
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
+  viewport: { once: true, margin: "-20px" },
   transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
 };
+
+/* ---------- Hero Helpers & Elements ---------- */
+
+export function MagneticButton({
+  children,
+  className,
+  href,
+  onClick,
+  download,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  href?: string;
+  onClick?: () => void;
+  download?: boolean;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    const distanceX = clientX - centerX;
+    const distanceY = clientY - centerY;
+
+    const maxPull = 10;
+    const pullX = (distanceX / (width / 2)) * maxPull;
+    const pullY = (distanceY / (height / 2)) * maxPull;
+
+    setPos({ x: pullX, y: pullY });
+  };
+
+  const handleMouseLeave = () => {
+    setPos({ x: 0, y: 0 });
+  };
+
+  const commonProps = {
+    animate: { x: pos.x, y: pos.y },
+    transition: { type: "spring" as const, stiffness: 150, damping: 15, mass: 0.1 },
+    className,
+  };
+
+  if (href) {
+    return (
+      <div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="inline-block"
+      >
+        <motion.a href={href} download={download} {...commonProps}>
+          {children}
+        </motion.a>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="inline-block"
+    >
+      <motion.button onClick={onClick} {...commonProps}>
+        {children}
+      </motion.button>
+    </div>
+  );
+}
+
+export function InteractiveIDE() {
+  const [activeTab, setActiveTab] = useState<"info" | "skills" | "terminal">("info");
+  const [cmd, setCmd] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [history, setHistory] = useState<{ text: string; type: "input" | "output" | "system" }[]>([
+    { text: "Diptanshu OS v1.0.0 (zsh)", type: "system" },
+    { text: "Type 'help' to see list of available commands or click suggestions below.", type: "system" },
+  ]);
+  const terminalEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (terminalEndRef.current) {
+      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [history]);
+
+  const executeCommand = (commandText: string) => {
+    const trimmed = commandText.trim().toLowerCase();
+    const newHistory = [...history, { text: `guest@diptanshu.dev:~$ ${commandText}`, type: "input" as const }];
+
+    if (trimmed === "") {
+      setHistory(newHistory);
+      setCmd("");
+      return;
+    }
+
+    let output = "";
+    if (trimmed === "help") {
+      output = `Available commands:
+  about    - Load brief bio info
+  skills   - List technical stack groups
+  projects - Display details on featured projects
+  contact  - Print email and social connections
+  clear    - Clear terminal history screen`;
+    } else if (trimmed === "about") {
+      output = `Diptanshu Das — Full Stack Developer
+Passionate developer specialized in constructing beautiful, scalable,
+high-performance, and responsive digital products.`;
+    } else if (trimmed === "skills") {
+      output = `Technical Expertise:
+- Frontend: TypeScript, React, Next.js, TailwindCSS
+- Backend: Node.js, Express.js, PostgreSQL, MongoDB, Redis
+- Tools: Git, Docker, Figma, Vite, CI/CD pipelines`;
+    } else if (trimmed === "projects") {
+      output = `Featured Work:
+1. Luminal Finance - Real-time decentralized asset tracker
+2. Nexus OS       - Spatial browser computing with Three.js
+3. Orbit Cloud     - Telemetry CLI & cloud control plane`;
+    } else if (trimmed === "contact") {
+      output = `Get in touch:
+- Email: hello@diptanshu.dev
+- Site:  diptanshu.dev
+- Links: GitHub, LinkedIn, Twitter`;
+    } else if (trimmed === "clear") {
+      setHistory([]);
+      setCmd("");
+      return;
+    } else {
+      output = `zsh: command not found: ${commandText}. Type 'help' for options.`;
+    }
+
+    setTimeout(() => {
+      setHistory((prev) => [...prev, { text: output, type: "output" as const }]);
+    }, 100);
+
+    setCmd("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !isTyping) {
+      executeCommand(cmd);
+    }
+  };
+
+  const runSuggestedCommand = (command: string) => {
+    if (isTyping) return;
+    setActiveTab("terminal");
+    setIsTyping(true);
+    setCmd("");
+    let currentText = "";
+    let charIndex = 0;
+
+    const interval = setInterval(() => {
+      if (charIndex < command.length) {
+        currentText += command[charIndex];
+        setCmd(currentText);
+        charIndex++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsTyping(false);
+          executeCommand(command);
+        }, 150);
+      }
+    }, 55);
+  };
+
+  return (
+    <div className="w-full rounded-lg border border-navy-lighter/60 bg-navy-light/60 premium-shadow glass-panel overflow-hidden font-mono text-xs select-none">
+      {/* Window Title Bar */}
+      <div className="flex items-center justify-between bg-navy-light/80 px-4 py-3 border-b border-navy-lighter/40">
+        <div className="flex gap-1.5">
+          <span className="h-3 w-3 rounded-full bg-[#FF5F56] opacity-80" />
+          <span className="h-3 w-3 rounded-full bg-[#FFBD2E] opacity-80" />
+          <span className="h-3 w-3 rounded-full bg-[#27C93F] opacity-80" />
+        </div>
+        <div className="text-[10px] tracking-wide text-slate/80">
+          diptanshu ~ {activeTab === "info" ? "Info.tsx" : activeTab === "skills" ? "skills.json" : "terminal.sh"}
+        </div>
+        <div className="w-12" />
+      </div>
+
+      {/* File Tabs */}
+      <div className="flex border-b border-navy-lighter/30 bg-navy/30">
+        {[
+          { id: "info" as const, label: "Info.tsx", icon: FileCode2 },
+          { id: "skills" as const, label: "skills.json", icon: FileJson },
+          { id: "terminal" as const, label: "terminal.sh", icon: TerminalIcon },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`flex items-center gap-1.5 px-4 py-2 border-r border-navy-lighter/20 transition-all ${
+              activeTab === t.id
+                ? "bg-navy-light/60 text-cyan border-b border-b-cyan"
+                : "text-slate hover:text-slate-light hover:bg-navy-light/20"
+            }`}
+          >
+            <t.icon className="h-3.5 w-3.5" />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Editor Content Area */}
+      <div className="p-5 h-[280px] overflow-y-auto bg-navy-light/20 leading-relaxed text-slate-light text-left">
+        {activeTab === "info" && (
+          <div className="space-y-1.5">
+            <div>
+              <span className="text-cyan">const</span> <span className="text-slate-light">DiptanshuDas</span> = () =&gt; &#123;
+            </div>
+            <div className="pl-4">
+              <span className="text-cyan">const</span> <span className="text-slate-light">role</span> = <span className="text-[#A2E9F2]">"Full Stack Engineer"</span>;
+            </div>
+            <div className="pl-4">
+              <span className="text-cyan">const</span> <span className="text-slate-light">focus</span> = [<span className="text-[#A2E9F2]">"performance"</span>, <span className="text-[#A2E9F2]">"interactive_ux"</span>];
+            </div>
+            <div className="pl-4">
+              <span className="text-cyan">const</span> <span className="text-slate-light">passion</span> = <span className="text-[#A2E9F2]">"bridging code & beautiful design"</span>;
+            </div>
+            <div className="pl-4 mt-2">
+              <span className="text-cyan">return</span> (
+            </div>
+            <div className="pl-8">
+              &lt;<span className="text-cyan">Portfolio</span>&gt;
+            </div>
+            <div className="pl-12">
+              &lt;<span className="text-cyan">AboutMe</span> <span className="text-slate/80">creative</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">true&#125;</span> /&gt;
+            </div>
+            <div className="pl-12">
+              &lt;<span className="text-cyan">Projects</span> <span className="text-slate/80">count</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">45&#125;</span> /&gt;
+            </div>
+            <div className="pl-12">
+              &lt;<span className="text-cyan">Skills</span> <span className="text-slate/80">modern</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">true&#125;</span> /&gt;
+            </div>
+            <div className="pl-8">
+              &lt;/<span className="text-cyan">Portfolio</span>&gt;
+            </div>
+            <div className="pl-4">
+              );
+            </div>
+            <div>&#125;;</div>
+            <div className="mt-4">
+              <span className="text-cyan">export default</span> <span className="text-slate-light">DiptanshuDas</span>;
+            </div>
+          </div>
+        )}
+
+        {activeTab === "skills" && (
+          <div className="space-y-1 text-[#A2E9F2]">
+            <div>&#123;</div>
+            <div className="pl-4">
+              <span className="text-slate-light">"name"</span>: <span className="text-[#A2E9F2]">"Diptanshu Das"</span>,
+            </div>
+            <div className="pl-4">
+              <span className="text-slate-light">"experience"</span>: <span className="text-cyan">6</span>,
+            </div>
+            <div className="pl-4">
+              <span className="text-slate-light">"coreTech"</span>: [
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"TypeScript"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"React / Next.js"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"Node.js"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"PostgreSQL"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"TailwindCSS"</span>
+            </div>
+            <div className="pl-4">
+              ],
+            </div>
+            <div className="pl-4">
+              <span className="text-slate-light">"creative"</span>: <span className="text-cyan">true</span>,
+            </div>
+            <div className="pl-4">
+              <span className="text-slate-light">"availableForHire"</span>: <span className="text-cyan">true</span>
+            </div>
+            <div>&#125;</div>
+          </div>
+        )}
+
+        {activeTab === "terminal" && (
+          <div className="space-y-2 whitespace-pre-wrap selection:bg-cyan/30 text-left">
+            {history.map((h, i) => (
+              <div
+                key={i}
+                className={
+                  h.type === "input"
+                    ? "text-slate-light font-semibold"
+                    : h.type === "system"
+                    ? "text-slate/60"
+                    : "text-cyan/90"
+                }
+              >
+                {h.text}
+              </div>
+            ))}
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="text-slate/70">guest@diptanshu.dev:~$</span>
+              <input
+                type="text"
+                value={cmd}
+                disabled={isTyping}
+                onChange={(e) => setCmd(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-transparent border-none outline-none text-cyan font-mono text-xs select-text caret-transparent terminal-caret"
+                autoFocus={activeTab === "terminal"}
+              />
+            </div>
+            <div ref={terminalEndRef} />
+          </div>
+        )}
+      </div>
+
+      {/* Terminal Suggestions / Quick Actions */}
+      <div className="flex flex-wrap gap-2 items-center bg-navy/40 px-4 py-2.5 border-t border-navy-lighter/30">
+        <span className="text-[10px] text-slate/50 font-sans tracking-wide uppercase">Quick commands:</span>
+        {["help", "about", "skills", "projects", "contact", "clear"].map((suggestion) => (
+          <button
+            key={suggestion}
+            onClick={() => runSuggestedCommand(suggestion)}
+            className="px-2 py-0.5 rounded bg-navy-lighter/20 border border-navy-lighter/40 text-[10px] text-slate hover:text-cyan hover:border-cyan/40 hover:bg-cyan-soft/10 transition-colors"
+          >
+            {suggestion}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* ---------- Hero ---------- */
 const HERO_TYPED = ["Digital Experiences.", "Scalable Web Apps.", "Beautiful Interfaces.", "Production Software."];
@@ -58,57 +400,71 @@ function useTyping(words: string[]) {
 export function Hero() {
   const typed = useTyping(HERO_TYPED);
   return (
-    <section id="top" className="relative flex min-h-screen items-center px-5 pt-32 md:px-10 lg:px-[120px]">
+    <section id="top" className="relative flex min-h-screen items-center px-5 pt-32 pb-16 md:px-10 lg:px-[120px]">
       <FloatingParticles />
       <div className="relative mx-auto w-full max-w-6xl">
-        <motion.p {...fadeUp} className="font-mono-label mb-6">
-          Hi, my name is
-        </motion.p>
-        <motion.h1
-          {...fadeUp}
-          transition={{ ...fadeUp.transition, delay: 0.1 }}
-          className="text-glow text-[clamp(2.75rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-slate-light"
-        >
-          Diptanshu Das.
-        </motion.h1>
-        <motion.h2
-          {...fadeUp}
-          transition={{ ...fadeUp.transition, delay: 0.2 }}
-          className="mt-2 text-[clamp(1.75rem,6vw,4rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-slate"
-        >
-          I build{" "}
-          <span className="text-cyan">{typed}</span>
-          <span className="animate-cursor text-cyan">|</span>
-        </motion.h2>
-        <motion.p
-          {...fadeUp}
-          transition={{ ...fadeUp.transition, delay: 0.35 }}
-          className="mt-8 max-w-2xl text-lg leading-relaxed text-slate"
-        >
-          I'm a Full Stack Developer passionate about creating modern, scalable,
-          interactive, and user-focused digital products — currently focused on
-          building accessible, high-performance web experiences end-to-end.
-        </motion.p>
-        <motion.div
-          {...fadeUp}
-          transition={{ ...fadeUp.transition, delay: 0.5 }}
-          className="mt-12 flex flex-wrap gap-4"
-        >
-          <a
-            href="#projects"
-            className="group inline-flex items-center gap-2 rounded-md border border-cyan bg-cyan-soft px-7 py-4 font-mono text-sm text-cyan transition-all hover:cyan-glow hover:bg-cyan hover:text-navy"
+        <div className="grid gap-12 lg:grid-cols-12 items-center">
+          {/* Left Column - Intro */}
+          <div className="lg:col-span-7 text-left">
+            <motion.p {...fadeUp} className="font-mono-label mb-6">
+              Hi, my name is
+            </motion.p>
+            <motion.h1
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.1 }}
+              className="text-glow text-[clamp(2.5rem,7vw,4.8rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-slate-light"
+            >
+              Diptanshu Das.
+            </motion.h1>
+            <motion.h2
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.2 }}
+              className="mt-2 text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-slate"
+            >
+              I build{" "}
+              <span className="text-cyan">{typed}</span>
+              <span className="animate-cursor text-cyan">|</span>
+            </motion.h2>
+            <motion.p
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.35 }}
+              className="mt-8 max-w-xl text-base md:text-lg leading-relaxed text-slate"
+            >
+              I'm a Full Stack Developer passionate about creating modern, scalable,
+              interactive, and user-focused digital products — currently focused on
+              building accessible, high-performance web experiences end-to-end.
+            </motion.p>
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.5 }}
+              className="mt-10 flex flex-wrap gap-4"
+            >
+              <MagneticButton
+                href="#projects"
+                className="group inline-flex items-center gap-2 rounded-md border border-cyan bg-cyan-soft px-7 py-4 font-mono text-sm text-cyan transition-all hover:cyan-glow hover:bg-cyan hover:text-navy"
+              >
+                View Projects
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </MagneticButton>
+              <MagneticButton
+                href="#"
+                className="group inline-flex items-center gap-2 rounded-md border border-navy-lighter px-7 py-4 font-mono text-sm text-slate-light transition-all hover:border-cyan hover:text-cyan"
+              >
+                <Download className="h-4 w-4" />
+                Download Resume
+              </MagneticButton>
+            </motion.div>
+          </div>
+
+          {/* Right Column - Interactive IDE */}
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.3 }}
+            className="lg:col-span-5 w-full max-w-lg lg:max-w-none mx-auto"
           >
-            View Projects
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
-          <a
-            href="#"
-            className="group inline-flex items-center gap-2 rounded-md border border-navy-lighter px-7 py-4 font-mono text-sm text-slate-light transition-all hover:border-cyan hover:text-cyan"
-          >
-            <Download className="h-4 w-4" />
-            Download Resume
-          </a>
-        </motion.div>
+            <InteractiveIDE />
+          </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -117,7 +473,7 @@ export function Hero() {
 /* ---------- About ---------- */
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
   const [n, setN] = useState(0);
   useEffect(() => {
     if (!inView) return;
@@ -496,7 +852,7 @@ export function GitHubBlock() {
   return (
     <section className="relative px-5 py-24 md:px-10 lg:px-[120px]">
       <div className="mx-auto max-w-6xl">
-        <SectionLabel index="05" title="On GitHub" />
+        <SectionLabel title="On GitHub" />
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <motion.div {...fadeUp} className="glass-panel rounded-md p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -554,7 +910,7 @@ export function Certifications() {
   return (
     <section id="certifications" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
       <div className="mx-auto max-w-6xl">
-        <SectionLabel index="06" title="Certifications & Achievements" />
+        <SectionLabel index="05" title="Certifications & Achievements" />
         <div className="grid gap-4 md:grid-cols-2">
           {CERTS.map((c, i) => (
             <motion.div
@@ -624,7 +980,7 @@ export function Contact() {
   return (
     <section id="contact" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
       <div className="mx-auto max-w-2xl text-center">
-        <motion.p {...fadeUp} className="font-mono-label mb-4">07. What's Next?</motion.p>
+        <motion.p {...fadeUp} className="font-mono-label mb-4">06. What's Next?</motion.p>
         <motion.h2 {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="text-4xl md:text-5xl font-bold tracking-tight text-slate-light">
           Get in Touch
         </motion.h2>
