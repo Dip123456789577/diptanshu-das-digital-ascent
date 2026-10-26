@@ -3,12 +3,16 @@ import { motion, useInView, useMotionValue, useSpring, useTransform } from "fram
 import {
   Download, ArrowUpRight, Github, Linkedin, Mail, Twitter, ExternalLink,
   Code2, Server, PenTool, Zap, Award, GraduationCap, Briefcase,
-  FileJson, FileCode2, Terminal as TerminalIcon,
+  FileJson, FileCode2, Terminal as TerminalIcon, ShieldCheck, CheckCircle2, Eye, X, ZoomIn,
 } from "lucide-react";
 import profileImg from "@/assets/profile.jpg";
-import projectLuminal from "@/assets/project-luminal.jpg";
-import projectNexus from "@/assets/project-nexus.jpg";
-import projectOrbit from "@/assets/project-orbit.jpg";
+import projectLuxe from "@/assets/project-luxe.jpg";
+import projectBrandCatalyst from "@/assets/project-brand-catalyst.jpg";
+import projectFormFlow from "@/assets/project-form-flow.jpg";
+import projectDrugGang from "@/assets/project-drug-gang.png";
+import certGlobalSecora from "@/assets/cert-global-secora.jpg";
+import certSemrushAiSearch from "@/assets/cert-semrush-ai-search.png";
+import certSemrushGettingStarted from "@/assets/cert-semrush-getting-started.png";
 import { FloatingParticles } from "./Background";
 
 /* ---------- Shared atoms ---------- */
@@ -134,6 +138,7 @@ export function InteractiveIDE() {
   about    - Load brief bio info
   skills   - List technical stack groups
   projects - Display details on featured projects
+  certs    - View verified certifications & credentials
   contact  - Print email and social connections
   clear    - Clear terminal history screen`;
     } else if (trimmed === "about") {
@@ -147,9 +152,15 @@ high-performance, and responsive digital products.`;
 - Tools: Git, Docker, Figma, Vite, CI/CD pipelines`;
     } else if (trimmed === "projects") {
       output = `Featured Work:
-1. Luminal Finance - Real-time decentralized asset tracker
-2. Nexus OS       - Spatial browser computing with Three.js
-3. Orbit Cloud     - Telemetry CLI & cloud control plane`;
+1. LUXE Atelier       - Editorial European linen & bespoke e-commerce
+2. KINETIC Atelier    - Digital growth, brand strategy & campaign engine
+3. FORMA Studio       - Architectural kitchen renovations & interactive CAD
+4. Definitely Not...  - Parody dark marketplace satirical web experience`;
+    } else if (trimmed === "certs" || trimmed === "certifications") {
+      output = `Verified Credentials:
+1. Cyber Security Internship - Global Secora Technology (ID: GST/STI/2026/0063)
+2. AI Search Operating System - Semrush Academy (ID: b3a6d5313c)
+3. Getting Started with Semrush - Semrush Academy (ID: 56814a603d)`;
     } else if (trimmed === "contact") {
       output = `Get in touch:
 - Email: hello@diptanshu.dev
@@ -542,14 +553,14 @@ export function About() {
 
           <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.15 }} className="group relative mx-auto w-full max-w-[300px]">
             <div className="relative aspect-square overflow-hidden rounded-md">
-              <div className="absolute inset-0 bg-cyan mix-blend-multiply transition-opacity group-hover:opacity-0" />
+              <div className="absolute inset-0 bg-cyan mix-blend-multiply transition-opacity group-hover:opacity-0 z-10 pointer-events-none" />
               <img
                 src={profileImg}
                 alt="Portrait of Diptanshu Das"
                 loading="lazy"
                 width={768}
                 height={896}
-                className="h-full w-full object-cover grayscale contrast-110 transition-all duration-500 group-hover:grayscale-0"
+                className="h-full w-full object-cover object-[center_18%] grayscale contrast-110 transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
               />
             </div>
             <div
@@ -728,23 +739,42 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 
 const PROJECTS = [
   {
-    title: "Luminal Finance",
-    desc: "A decentralized asset tracking platform with real-time analytics and predictive modelling for retail and institutional traders.",
-    img: projectLuminal,
-    tags: ["Next.js", "tRPC", "PostgreSQL", "D3"],
+    title: "LUXE Atelier",
+    desc: "An editorial e-commerce platform crafted for artisan goods and considered living. Features curated seasonal edits, multi-currency conversion, an interactive shopping bag, and responsive product inspection.",
+    img: projectLuxe,
+    tags: ["React", "TypeScript", "Tailwind CSS", "Storefront", "UX/UI"],
     featured: true,
+    liveUrl: "https://luxe-e-commerce-refined.vercel.app/",
+    githubUrl: "https://github.com/diptanshu-das",
+    metrics: [
+      { v: "99+", l: "Lighthouse Score" },
+      { v: "<100ms", l: "Interaction Speed" },
+      { v: "100%", l: "Responsive Design" },
+    ],
   },
   {
-    title: "Nexus OS",
-    desc: "A spatial computing interface built for the web, pushing the boundaries of interactive 3D UI in the browser.",
-    img: projectNexus,
-    tags: ["Three.js", "React", "WebGL"],
+    title: "KINETIC Atelier",
+    desc: "A high-performance digital agency platform showcasing brand strategy, creative direction, and campaign architectures with interactive capability panels and dynamic metrics.",
+    img: projectBrandCatalyst,
+    tags: ["Next.js", "TypeScript", "Framer Motion", "Growth Agency"],
+    liveUrl: "https://brand-catalyst-nine.vercel.app/",
+    githubUrl: "https://github.com/diptanshu-das",
   },
   {
-    title: "Orbit Cloud",
-    desc: "Lightweight cloud control plane with real-time telemetry, infrastructure-as-code and a delightful CLI.",
-    img: projectOrbit,
-    tags: ["Go", "React", "WebSocket"],
+    title: "FORMA Kitchen Studio",
+    desc: "An architectural kitchen renovation and custom cabinetry website with an interactive before-and-after renovation slider, craft portfolio, and consultation booking system.",
+    img: projectFormFlow,
+    tags: ["React", "Interactive Slider", "Tailwind CSS", "Architecture"],
+    liveUrl: "https://form-flow-kitchens.vercel.app/",
+    githubUrl: "https://github.com/diptanshu-das",
+  },
+  {
+    title: "Definitely Not A Drug Marketplace",
+    desc: "A satirical dark-humor parody web application playfully styled after fictional crime networks. Built with high-contrast cyberpunk aesthetics and interactive comedy flows.",
+    img: projectDrugGang,
+    tags: ["React", "TypeScript", "Cyberpunk UI", "Comedy Parody"],
+    liveUrl: "https://drug-gang.vercel.app/",
+    githubUrl: "https://github.com/diptanshu-das",
   },
 ];
 
@@ -758,30 +788,47 @@ export function Projects() {
         <motion.div {...fadeUp} className="relative mb-24 grid items-center gap-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <TiltCard>
-              <div className="group relative overflow-hidden rounded-md border border-navy-lighter">
+              <a
+                href={PROJECTS[0].liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative block overflow-hidden rounded-md border border-navy-lighter"
+              >
                 <img
                   src={PROJECTS[0].img}
-                  alt="Luminal Finance dashboard"
+                  alt={PROJECTS[0].title}
                   loading="lazy"
                   width={1280}
                   height={800}
                   className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-navy/40 mix-blend-multiply transition-opacity group-hover:opacity-0" />
-              </div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-navy/60 backdrop-blur-[2px]">
+                  <span className="flex items-center gap-2 rounded-full border border-cyan/60 bg-navy-dark/90 px-4 py-2 font-mono text-xs text-cyan shadow-lg">
+                    <span>Visit Live Site</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
+                </div>
+              </a>
             </TiltCard>
           </div>
           <div className="lg:col-span-5 lg:-ml-16 lg:relative lg:z-10">
             <p className="font-mono-label mb-2">Featured Project</p>
-            <h3 className="text-3xl font-bold text-slate-light">{PROJECTS[0].title}</h3>
+            <h3 className="text-3xl font-bold text-slate-light">
+              <a
+                href={PROJECTS[0].liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-cyan transition-colors inline-flex items-center gap-2"
+              >
+                {PROJECTS[0].title}
+                <ArrowUpRight className="h-5 w-5 text-cyan" />
+              </a>
+            </h3>
             <div className="mt-5 glass-panel rounded-md p-6">
               <p className="text-slate leading-relaxed">{PROJECTS[0].desc}</p>
               <div className="mt-6 grid grid-cols-3 gap-4 border-t border-navy-lighter pt-5">
-                {[
-                  { v: "1.2M", l: "API calls / day" },
-                  { v: "<80ms", l: "p95 latency" },
-                  { v: "99.99%", l: "Uptime" },
-                ].map((s) => (
+                {PROJECTS[0].metrics?.map((s) => (
                   <div key={s.l}>
                     <div className="font-mono text-xl font-bold text-cyan">{s.v}</div>
                     <div className="mt-1 text-[11px] uppercase tracking-wider text-slate">{s.l}</div>
@@ -795,8 +842,24 @@ export function Projects() {
               ))}
             </ul>
             <div className="mt-6 flex gap-4">
-              <a href="#" className="text-slate-light hover:text-cyan" aria-label="GitHub repo"><Github className="h-5 w-5" /></a>
-              <a href="#" className="text-slate-light hover:text-cyan" aria-label="Live demo"><ExternalLink className="h-5 w-5" /></a>
+              <a
+                href={PROJECTS[0].githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-light hover:text-cyan transition-colors"
+                aria-label="GitHub repo"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+              <a
+                href={PROJECTS[0].liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-light hover:text-cyan transition-colors"
+                aria-label="Live demo"
+              >
+                <ExternalLink className="h-5 w-5" />
+              </a>
             </div>
           </div>
         </motion.div>
@@ -810,28 +873,62 @@ export function Projects() {
               transition={{ ...fadeUp.transition, delay: i * 0.1 }}
               className="group relative flex flex-col overflow-hidden rounded-md border border-navy-lighter/60 bg-navy-light/40 transition-all hover:-translate-y-1 hover:border-cyan/50 hover:cyan-glow"
             >
-              <div className="relative overflow-hidden">
+              <a
+                href={p.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block overflow-hidden"
+              >
                 <img
                   src={p.img}
                   alt={p.title}
                   loading="lazy"
                   width={1280}
                   height={800}
-                  className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-              </div>
+                <div className="absolute inset-0 bg-navy/30 mix-blend-multiply transition-opacity group-hover:opacity-0" />
+              </a>
               <div className="flex flex-1 flex-col p-6">
-                <h3 className="text-lg font-bold text-slate-light group-hover:text-cyan">{p.title}</h3>
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-lg font-bold text-slate-light group-hover:text-cyan transition-colors">
+                    <a
+                      href={p.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      {p.title}
+                      <ArrowUpRight className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100 text-cyan" />
+                    </a>
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <a
+                      href={p.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate hover:text-cyan transition-colors"
+                      aria-label={`${p.title} GitHub`}
+                    >
+                      <Github className="h-4 w-4" />
+                    </a>
+                    <a
+                      href={p.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate hover:text-cyan transition-colors"
+                      aria-label={`${p.title} Live`}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-slate">{p.desc}</p>
                 <ul className="mt-5 flex flex-wrap gap-2 font-mono text-[11px]">
                   {p.tags.map((t) => (
                     <li key={t} className="border border-cyan/40 bg-cyan-soft px-2 py-0.5 text-cyan">{t}</li>
                   ))}
                 </ul>
-                <div className="mt-5 flex gap-4">
-                  <a href="#" className="text-slate-light hover:text-cyan" aria-label="GitHub"><Github className="h-4 w-4" /></a>
-                  <a href="#" className="text-slate-light hover:text-cyan" aria-label="Demo"><ExternalLink className="h-4 w-4" /></a>
-                </div>
               </div>
             </motion.article>
           ))}
@@ -900,36 +997,191 @@ export function GitHubBlock() {
 }
 
 const CERTS = [
-  { icon: Award, title: "AWS Certified Solutions Architect", org: "Amazon Web Services", year: "2024" },
-  { icon: Award, title: "Google Cloud Professional Developer", org: "Google Cloud", year: "2023" },
-  { icon: Zap, title: "Hackathon Winner — BuildCon", org: "Open-source track", year: "2023" },
-  { icon: Award, title: "Meta Front-End Developer", org: "Coursera", year: "2022" },
+  {
+    title: "Cyber Security Internship",
+    subtitle: "Summer Training cum Internship Program",
+    org: "Global Secora Technology Pvt. Ltd.",
+    credentialId: "GST/STI/2026/0063",
+    date: "July 2026",
+    period: "15.06.2026 – 15.07.2026",
+    recipient: "Mr. Diptanshu Das (The Neotia University)",
+    signatory: "Souvik Biswas — Founder & CEO",
+    tags: ["Cyber Security", "Practical Assignments", "Industry Training"],
+    img: certGlobalSecora,
+    aspect: "aspect-[4/5]",
+    icon: ShieldCheck,
+  },
+  {
+    title: "AI Search Operating System",
+    subtitle: "Semrush Academy Certificate of Achievement",
+    org: "Semrush Academy",
+    credentialId: "b3a6d5313c · Exam id-37",
+    date: "Expires Sept 2027",
+    period: "Valid thru 29.09.2027",
+    recipient: "Diptanshu Das",
+    signatory: "Leigh McKenzie & Rita Cidre",
+    tags: ["AI Search", "Modern Search Engines", "SEO Architecture"],
+    img: certSemrushAiSearch,
+    aspect: "aspect-[16/11]",
+    icon: Award,
+  },
+  {
+    title: "Getting Started with Semrush",
+    subtitle: "Semrush Academy Certificate of Achievement",
+    org: "Semrush Academy",
+    credentialId: "56814a603d · Exam id-25",
+    date: "Expires Sept 2027",
+    period: "Valid thru 29.09.2027",
+    recipient: "Diptanshu Das",
+    signatory: "Rita Cidre",
+    tags: ["SEO Intelligence", "Keyword Research", "Competitive Auditing"],
+    img: certSemrushGettingStarted,
+    aspect: "aspect-[16/11]",
+    icon: Award,
+  },
 ];
 
 export function Certifications() {
+  const [activeCert, setActiveCert] = useState<(typeof CERTS)[0] | null>(null);
+
+  // Close modal on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveCert(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <section id="certifications" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
       <div className="mx-auto max-w-6xl">
-        <SectionLabel index="05" title="Certifications & Achievements" />
-        <div className="grid gap-4 md:grid-cols-2">
+        <SectionLabel index="05" title="Certifications & Credentials" />
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {CERTS.map((c, i) => (
-            <motion.div
+            <motion.article
               key={c.title}
               {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-              className="group flex items-start gap-4 rounded-md border border-navy-lighter/60 bg-navy-light/40 p-5 transition-all hover:-translate-y-0.5 hover:border-cyan/50 hover:cyan-glow"
+              transition={{ ...fadeUp.transition, delay: i * 0.1 }}
+              className="group flex flex-col overflow-hidden rounded-md border border-navy-lighter/60 bg-navy-light/40 transition-all hover:-translate-y-1 hover:border-cyan/50 hover:cyan-glow"
             >
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-cyan-soft text-cyan">
-                <c.icon className="h-5 w-5" />
+              {/* Thumbnail with zoom overlay */}
+              <div
+                onClick={() => setActiveCert(c)}
+                className="relative cursor-pointer overflow-hidden bg-navy-dark border-b border-navy-lighter/60"
+              >
+                <div className={`${c.aspect} w-full overflow-hidden flex items-center justify-center p-3 bg-navy-dark/70`}>
+                  <img
+                    src={c.img}
+                    alt={c.title}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain rounded transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-navy/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-center justify-center backdrop-blur-[2px]">
+                  <span className="flex items-center gap-1.5 rounded-full border border-cyan/60 bg-navy-dark/90 px-3.5 py-1.5 font-mono text-xs text-cyan shadow-lg">
+                    <ZoomIn className="h-3.5 w-3.5" />
+                    <span>View Certificate</span>
+                  </span>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h3 className="font-bold text-slate-light group-hover:text-cyan">{c.title}</h3>
-                <p className="mt-1 text-sm text-slate">{c.org} · <span className="font-mono">{c.year}</span></p>
+
+              {/* Info */}
+              <div className="flex flex-1 flex-col p-6">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-cyan">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-cyan" />
+                    Verified Credential
+                  </span>
+                  <span className="font-mono text-[10px] text-slate">{c.date}</span>
+                </div>
+
+                <h3 className="text-lg font-bold text-slate-light group-hover:text-cyan transition-colors">
+                  {c.title}
+                </h3>
+                <p className="mt-1 text-sm text-slate">{c.org}</p>
+
+                <div className="mt-3 rounded bg-navy-dark/60 border border-navy-lighter/40 p-2.5 font-mono text-[11px]">
+                  <div className="text-[10px] uppercase tracking-wider text-slate">Credential ID</div>
+                  <div className="truncate text-cyan font-semibold">{c.credentialId}</div>
+                </div>
+
+                <ul className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
+                  {c.tags.map((t) => (
+                    <li key={t} className="border border-cyan/30 bg-cyan-soft px-2 py-0.5 text-cyan">
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveCert(c)}
+                  className="mt-5 inline-flex items-center justify-center gap-2 rounded border border-cyan/40 bg-navy-light/60 py-2 text-xs font-mono text-cyan transition-all hover:bg-cyan hover:text-navy hover:shadow-cyan-glow cursor-pointer"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>Inspect Certificate</span>
+                </button>
               </div>
-            </motion.div>
+            </motion.article>
           ))}
         </div>
       </div>
+
+      {/* Lightbox / Modal */}
+      {activeCert && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-navy/80 p-4 backdrop-blur-md"
+          onClick={() => setActiveCert(null)}
+        >
+          <div
+            className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-cyan/40 bg-navy-light shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-navy-lighter/70 bg-navy px-5 py-4">
+              <div>
+                <h4 className="font-bold text-slate-light text-base sm:text-lg">{activeCert.title}</h4>
+                <p className="text-xs text-slate">{activeCert.org} · <span className="font-mono text-cyan">{activeCert.credentialId}</span></p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveCert(null)}
+                aria-label="Close certificate preview"
+                className="rounded-full p-2 text-slate hover:bg-navy-lighter hover:text-cyan transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Image Body */}
+            <div className="flex-1 overflow-auto bg-navy-dark/95 p-4 flex items-center justify-center">
+              <img
+                src={activeCert.img}
+                alt={activeCert.title}
+                className="max-h-[65vh] w-auto max-w-full rounded border border-navy-lighter object-contain shadow-lg"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-navy-lighter/70 bg-navy px-5 py-3 text-xs">
+              <span className="font-mono text-slate">Recipient: <strong className="text-slate-light">{activeCert.recipient}</strong></span>
+              <a
+                href={activeCert.img}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded border border-cyan bg-cyan/10 px-3 py-1 font-mono text-cyan transition-colors hover:bg-cyan hover:text-navy"
+              >
+                <span>Open Full Size</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
