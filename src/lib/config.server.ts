@@ -6,9 +6,13 @@ import process from "node:process";
 // Node, Nitro, and edge runtimes.
 
 export function getServerConfig() {
+  const emailApiKey =
+    process.env.EMAIL_API_KEY || process.env.MAIL_API_KEY || process.env.BREVO_API_KEY;
+
   return {
     nodeEnv: process.env.NODE_ENV,
-    brevoApiKey: process.env.BREVO_API_KEY,
+    emailApiKey,
+    brevoApiKey: emailApiKey, // backward-compatibility alias
     contactToEmail: process.env.CONTACT_TO_EMAIL || "diptanshudas920@gmail.com",
     contactFromEmail: process.env.CONTACT_FROM_EMAIL || "diptanshudas920@gmail.com",
     contactFromName: process.env.CONTACT_FROM_NAME || "Diptanshu Das Portfolio",
