@@ -167,18 +167,23 @@ export function InteractiveIDE({ onOpenResume }: { onOpenResume?: () => void }) 
     let output = "";
     if (trimmed === "help") {
       output = `Available commands:
-  about    - Bio & educational background
-  skills   - Technical proficiency summary
-  projects - Featured production projects
-  certs    - Verified credentials & licenses
-  resume   - Open printable curriculum vitae
-  contact  - Direct email & communication channels
-  clear    - Clear terminal buffer`;
+  about       - Bio & educational background
+  skills      - Technical proficiency summary
+  projects    - Featured production projects
+  certs       - Verified credentials & licenses
+  experience  - Industry internships & roles
+  education   - Academic degree & university
+  github      - Profile & repository link
+  resume      - Open printable curriculum vitae
+  contact     - Direct email & communication channels
+  whoami      - Current session identity
+  ls / pwd    - Directory listing & path
+  clear       - Clear terminal buffer`;
     } else if (trimmed === "about") {
       output = `Diptanshu Das — Full Stack Developer & Cybersecurity Intern
 Student at The Neotia University (B.Tech CSE).
 Focused on building high-performance, secure, and accessible web systems.`;
-    } else if (trimmed === "skills") {
+    } else if (trimmed === "skills" || trimmed === "stack") {
       output = `Core Technical Stack:
 - Frontend: TypeScript, React 19, Next.js, TanStack Start, Tailwind CSS v4
 - Backend: Node.js, Express.js, PostgreSQL, MongoDB, Redis, Nitro
@@ -194,10 +199,31 @@ Focused on building high-performance, secure, and accessible web systems.`;
 1. Cyber Security Internship - Global Secora Technology (ID: GST/STI/2026/0063)
 2. AI Search Operating System - Semrush Academy (ID: b3a6d5313c)
 3. Getting Started with Semrush - Semrush Academy (ID: 56814a603d)`;
-    } else if (trimmed === "resume") {
+    } else if (trimmed === "experience") {
+      output = `Professional Milestones:
+1. Cyber Security Intern @ Global Secora Technology Pvt. Ltd. (June 2026 – July 2026)
+2. Full Stack Developer & Consultant @ Production Web Platforms (2024 – Present)`;
+    } else if (trimmed === "education") {
+      output = `Academic Background:
+Bachelor of Technology (B.Tech) — Computer Science & Engineering
+The Neotia University, West Bengal, India`;
+    } else if (trimmed === "github") {
+      output = `GitHub: https://github.com/Dip123456789577
+Public Repositories: 45+ | Activity: Continuous Engineering`;
+    } else if (trimmed === "whoami") {
+      output = `guest@portfolio (Engineering Leader / Hiring Manager / Tech Explorer)`;
+    } else if (trimmed === "pwd") {
+      output = `/home/diptanshu/portfolio`;
+    } else if (trimmed === "ls") {
+      output = `Info.tsx  skills.json  terminal.sh  projects/  credentials/  resume.pdf`;
+    } else if (trimmed === "sudo" || trimmed.startsWith("sudo ")) {
+      output = `Permission denied: guest does not have root access. Feel free to use 'contact' to connect directly :)`;
+    } else if (trimmed === "date") {
+      output = new Date().toUTCString();
+    } else if (trimmed === "resume" || trimmed === "cv") {
       output = `Opening official Curriculum Vitae...`;
       onOpenResume?.();
-    } else if (trimmed === "contact") {
+    } else if (trimmed === "contact" || trimmed === "email") {
       output = `Direct Communication:
 - Email:    diptanshudas920@gmail.com
 - GitHub:   https://github.com/Dip123456789577
