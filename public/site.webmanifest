@@ -1,0 +1,17 @@
+{
+  "name": "Diptanshu Das — Full Stack Developer & Cybersecurity",
+  "short_name": "Diptanshu",
+  "description": "Official Portfolio of Diptanshu Das — Full Stack Developer & Cybersecurity Intern",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A192F",
+  "theme_color": "#0A192F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

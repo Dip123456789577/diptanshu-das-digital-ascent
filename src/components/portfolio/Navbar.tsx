@@ -9,7 +9,7 @@ const NAV = [
   { id: "contact", label: "Contact" },
 ];
 
-export function Navbar() {
+export function Navbar({ onOpenResume }: { onOpenResume?: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("about");
   const [open, setOpen] = useState(false);
@@ -37,7 +37,7 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
         scrolled ? "glass-panel py-3" : "py-5 bg-transparent"
       }`}
     >
@@ -55,20 +55,19 @@ export function Navbar() {
                   active === item.id ? "text-cyan" : "text-slate-light hover:text-cyan"
                 }`}
               >
-                <span className="mr-1.5 font-mono text-xs text-cyan/70">
-                  0{i + 1}.
-                </span>
+                <span className="mr-1.5 font-mono text-xs text-cyan/70">0{i + 1}.</span>
                 {item.label}
               </a>
             </li>
           ))}
           <li className="ml-3">
-            <a
-              href="#"
-              className="rounded-md border border-cyan px-4 py-2 font-mono text-sm text-cyan transition-all hover:bg-cyan-soft hover:cyan-glow"
+            <button
+              type="button"
+              onClick={onOpenResume}
+              className="rounded-md border border-cyan px-4 py-2 font-mono text-sm text-cyan transition-all hover:bg-cyan-soft hover:cyan-glow cursor-pointer"
             >
               Resume
-            </a>
+            </button>
           </li>
         </ul>
 
@@ -78,9 +77,15 @@ export function Navbar() {
           aria-label="Toggle menu"
         >
           <div className="flex flex-col gap-1.5">
-            <span className={`block h-0.5 w-6 bg-cyan transition-transform ${open ? "translate-y-2 rotate-45" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-cyan transition-opacity ${open ? "opacity-0" : ""}`} />
-            <span className={`block h-0.5 w-6 bg-cyan transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
+            <span
+              className={`block h-0.5 w-6 bg-cyan transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-cyan transition-opacity ${open ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 bg-cyan transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+            />
           </div>
         </button>
       </nav>
@@ -102,13 +107,16 @@ export function Navbar() {
               </li>
             ))}
             <li>
-              <a
-                href="#"
-                onClick={() => setOpen(false)}
-                className="mt-2 block rounded-md border border-cyan px-3 py-3 text-center font-mono text-sm text-cyan"
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  onOpenResume?.();
+                }}
+                className="mt-2 block w-full rounded-md border border-cyan px-3 py-3 text-center font-mono text-sm text-cyan cursor-pointer hover:bg-cyan-soft"
               >
                 Resume
-              </a>
+              </button>
             </li>
           </ul>
         </div>

@@ -1,10 +1,39 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
-  Download, ArrowUpRight, Github, Linkedin, Mail, Twitter, ExternalLink,
-  Code2, Server, PenTool, Zap, Award, GraduationCap, Briefcase,
-  FileJson, FileCode2, Terminal as TerminalIcon, ShieldCheck, CheckCircle2, Eye, X, ZoomIn,
+  Download,
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  Mail,
+  Twitter,
+  ExternalLink,
+  Code2,
+  Server,
+  PenTool,
+  Zap,
+  Award,
+  GraduationCap,
+  Briefcase,
+  FileJson,
+  FileCode2,
+  Terminal as TerminalIcon,
+  ShieldCheck,
+  CheckCircle2,
+  Eye,
+  X,
+  ZoomIn,
+  Loader2,
+  Copy,
+  Check,
+  Send,
+  AlertTriangle,
+  Sparkles,
+  MapPin,
+  Clock,
 } from "lucide-react";
+import { toast } from "sonner";
+import { submitContactForm } from "@/lib/api/contact.functions";
 import profileImg from "@/assets/profile.jpg";
 import projectLuxe from "@/assets/project-luxe.jpg";
 import projectBrandCatalyst from "@/assets/project-brand-catalyst.jpg";
@@ -21,7 +50,7 @@ function SectionLabel({ index, title }: { index?: string; title: string }) {
     <div className="mb-12 flex items-center gap-4">
       {index && <span className="font-mono text-sm text-cyan">{index}.</span>}
       <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-light">{title}</h2>
-      <div className="ml-2 h-px flex-1 max-w-[240px] bg-navy-lighter" />
+      <div className="ml-2 h-px flex-1 max-w-60 bg-navy-lighter" />
     </div>
   );
 }
@@ -99,20 +128,20 @@ export function MagneticButton({
       onMouseLeave={handleMouseLeave}
       className="inline-block"
     >
-      <motion.button onClick={onClick} {...commonProps}>
+      <motion.button type="button" onClick={onClick} {...commonProps}>
         {children}
       </motion.button>
     </div>
   );
 }
 
-export function InteractiveIDE() {
+export function InteractiveIDE({ onOpenResume }: { onOpenResume?: () => void }) {
   const [activeTab, setActiveTab] = useState<"info" | "skills" | "terminal">("info");
   const [cmd, setCmd] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [history, setHistory] = useState<{ text: string; type: "input" | "output" | "system" }[]>([
-    { text: "Diptanshu OS v1.0.0 (zsh)", type: "system" },
-    { text: "Type 'help' to see list of available commands or click suggestions below.", type: "system" },
+    { text: "Diptanshu OS v2.4 (zsh/node22)", type: "system" },
+    { text: "Type 'help' to see available commands or click quick actions below.", type: "system" },
   ]);
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
@@ -124,7 +153,10 @@ export function InteractiveIDE() {
 
   const executeCommand = (commandText: string) => {
     const trimmed = commandText.trim().toLowerCase();
-    const newHistory = [...history, { text: `guest@diptanshu.dev:~$ ${commandText}`, type: "input" as const }];
+    const newHistory = [
+      ...history,
+      { text: `guest@diptanshudas:~$ ${commandText}`, type: "input" as const },
+    ];
 
     if (trimmed === "") {
       setHistory(newHistory);
@@ -135,48 +167,53 @@ export function InteractiveIDE() {
     let output = "";
     if (trimmed === "help") {
       output = `Available commands:
-  about    - Load brief bio info
-  skills   - List technical stack groups
-  projects - Display details on featured projects
-  certs    - View verified certifications & credentials
-  contact  - Print email and social connections
-  clear    - Clear terminal history screen`;
+  about    - Bio & educational background
+  skills   - Technical proficiency summary
+  projects - Featured production projects
+  certs    - Verified credentials & licenses
+  resume   - Open printable curriculum vitae
+  contact  - Direct email & communication channels
+  clear    - Clear terminal buffer`;
     } else if (trimmed === "about") {
-      output = `Diptanshu Das — Full Stack Developer
-Passionate developer specialized in constructing beautiful, scalable,
-high-performance, and responsive digital products.`;
+      output = `Diptanshu Das — Full Stack Developer & Cybersecurity Intern
+Student at The Neotia University (B.Tech CSE).
+Focused on building high-performance, secure, and accessible web systems.`;
     } else if (trimmed === "skills") {
-      output = `Technical Expertise:
-- Frontend: TypeScript, React, Next.js, TailwindCSS
-- Backend: Node.js, Express.js, PostgreSQL, MongoDB, Redis
-- Tools: Git, Docker, Figma, Vite, CI/CD pipelines`;
+      output = `Core Technical Stack:
+- Frontend: TypeScript, React 19, Next.js, TanStack Start, Tailwind CSS v4
+- Backend: Node.js, Express.js, PostgreSQL, MongoDB, Redis, Nitro
+- Security & Tools: Vulnerability Auditing, Git/GitHub, Docker, Vite, Brevo API`;
     } else if (trimmed === "projects") {
-      output = `Featured Work:
-1. LUXE Atelier       - Editorial European linen & bespoke e-commerce
-2. KINETIC Atelier    - Digital growth, brand strategy & campaign engine
-3. FORMA Studio       - Architectural kitchen renovations & interactive CAD
-4. Definitely Not...  - Parody dark marketplace satirical web experience`;
+      output = `Featured Works:
+1. LUXE Atelier       - Luxury e-commerce experience (99+ Lighthouse)
+2. KINETIC Atelier    - High-velocity agency platform
+3. FORMA Studio       - Architectural cabinetry & interactive space designer
+4. Cyberpunk Parody   - Dark satire web experience`;
     } else if (trimmed === "certs" || trimmed === "certifications") {
-      output = `Verified Credentials:
+      output = `Verified Industry Credentials:
 1. Cyber Security Internship - Global Secora Technology (ID: GST/STI/2026/0063)
 2. AI Search Operating System - Semrush Academy (ID: b3a6d5313c)
 3. Getting Started with Semrush - Semrush Academy (ID: 56814a603d)`;
+    } else if (trimmed === "resume") {
+      output = `Opening official Curriculum Vitae...`;
+      onOpenResume?.();
     } else if (trimmed === "contact") {
-      output = `Get in touch:
-- Email: hello@diptanshu.dev
-- Site:  diptanshu.dev
-- Links: GitHub, LinkedIn, Twitter`;
+      output = `Direct Communication:
+- Email:    diptanshudas920@gmail.com
+- GitHub:   https://github.com/Dip123456789577
+- Location: West Bengal, India (UTC +5:30)
+- Status:   Open for Full-Time Roles & Contracts`;
     } else if (trimmed === "clear") {
       setHistory([]);
       setCmd("");
       return;
     } else {
-      output = `zsh: command not found: ${commandText}. Type 'help' for options.`;
+      output = `zsh: command not found: ${commandText}. Type 'help' to see available options.`;
     }
 
     setTimeout(() => {
       setHistory((prev) => [...prev, { text: output, type: "output" as const }]);
-    }, 100);
+    }, 80);
 
     setCmd("");
   };
@@ -205,9 +242,9 @@ high-performance, and responsive digital products.`;
         setTimeout(() => {
           setIsTyping(false);
           executeCommand(command);
-        }, 150);
+        }, 120);
       }
-    }, 55);
+    }, 45);
   };
 
   return (
@@ -220,7 +257,12 @@ high-performance, and responsive digital products.`;
           <span className="h-3 w-3 rounded-full bg-[#27C93F] opacity-80" />
         </div>
         <div className="text-[10px] tracking-wide text-slate/80">
-          diptanshu ~ {activeTab === "info" ? "Info.tsx" : activeTab === "skills" ? "skills.json" : "terminal.sh"}
+          diptanshu ~{" "}
+          {activeTab === "info"
+            ? "Info.tsx"
+            : activeTab === "skills"
+              ? "skills.json"
+              : "terminal.sh"}
         </div>
         <div className="w-12" />
       </div>
@@ -248,45 +290,59 @@ high-performance, and responsive digital products.`;
       </div>
 
       {/* Editor Content Area */}
-      <div className="p-5 h-[280px] overflow-y-auto bg-navy-light/20 leading-relaxed text-slate-light text-left">
+      <div className="p-5 h-70 overflow-y-auto bg-navy-light/20 leading-relaxed text-slate-light text-left">
         {activeTab === "info" && (
           <div className="space-y-1.5">
             <div>
-              <span className="text-cyan">const</span> <span className="text-slate-light">DiptanshuDas</span> = () =&gt; &#123;
+              <span className="text-cyan">const</span>{" "}
+              <span className="text-slate-light">DiptanshuDas</span> = () =&gt; &#123;
             </div>
             <div className="pl-4">
-              <span className="text-cyan">const</span> <span className="text-slate-light">role</span> = <span className="text-[#A2E9F2]">"Full Stack Engineer"</span>;
+              <span className="text-cyan">const</span>{" "}
+              <span className="text-slate-light">title</span> ={" "}
+              <span className="text-[#A2E9F2]">"Full Stack Engineer & Security Researcher"</span>;
             </div>
             <div className="pl-4">
-              <span className="text-cyan">const</span> <span className="text-slate-light">focus</span> = [<span className="text-[#A2E9F2]">"performance"</span>, <span className="text-[#A2E9F2]">"interactive_ux"</span>];
+              <span className="text-cyan">const</span>{" "}
+              <span className="text-slate-light">education</span> ={" "}
+              <span className="text-[#A2E9F2]">"The Neotia University (B.Tech CSE)"</span>;
             </div>
             <div className="pl-4">
-              <span className="text-cyan">const</span> <span className="text-slate-light">passion</span> = <span className="text-[#A2E9F2]">"bridging code & beautiful design"</span>;
+              <span className="text-cyan">const</span>{" "}
+              <span className="text-slate-light">internship</span> ={" "}
+              <span className="text-[#A2E9F2]">"Global Secora Technology Pvt. Ltd."</span>;
+            </div>
+            <div className="pl-4">
+              <span className="text-cyan">const</span>{" "}
+              <span className="text-slate-light">status</span> ={" "}
+              <span className="text-[#A2E9F2]">"Available for Full-time Roles & Contracts"</span>;
             </div>
             <div className="pl-4 mt-2">
               <span className="text-cyan">return</span> (
             </div>
             <div className="pl-8">
-              &lt;<span className="text-cyan">Portfolio</span>&gt;
+              &lt;<span className="text-cyan">DeveloperProfile</span>&gt;
             </div>
             <div className="pl-12">
-              &lt;<span className="text-cyan">AboutMe</span> <span className="text-slate/80">creative</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">true&#125;</span> /&gt;
+              &lt;<span className="text-cyan">Specialization</span>{" "}
+              <span className="text-slate/80">focus</span>=<span className="text-cyan">&#123;</span>
+              [<span className="text-[#A2E9F2]">"web-scale"</span>,{" "}
+              <span className="text-[#A2E9F2]">"cyber-defense"</span>]
+              <span className="text-cyan">&#125;</span> /&gt;
             </div>
             <div className="pl-12">
-              &lt;<span className="text-cyan">Projects</span> <span className="text-slate/80">count</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">45&#125;</span> /&gt;
-            </div>
-            <div className="pl-12">
-              &lt;<span className="text-cyan">Skills</span> <span className="text-slate/80">modern</span>=<span className="text-cyan">&#123;</span><span className="text-cyan">true&#125;</span> /&gt;
+              &lt;<span className="text-cyan">Email</span>{" "}
+              <span className="text-slate/80">address</span>=
+              <span className="text-[#A2E9F2]">"diptanshudas920@gmail.com"</span> /&gt;
             </div>
             <div className="pl-8">
-              &lt;/<span className="text-cyan">Portfolio</span>&gt;
+              &lt;/<span className="text-cyan">DeveloperProfile</span>&gt;
             </div>
-            <div className="pl-4">
-              );
-            </div>
+            <div className="pl-4">);</div>
             <div>&#125;;</div>
             <div className="mt-4">
-              <span className="text-cyan">export default</span> <span className="text-slate-light">DiptanshuDas</span>;
+              <span className="text-cyan">export default</span>{" "}
+              <span className="text-slate-light">DiptanshuDas</span>;
             </div>
           </div>
         )}
@@ -295,10 +351,16 @@ high-performance, and responsive digital products.`;
           <div className="space-y-1 text-[#A2E9F2]">
             <div>&#123;</div>
             <div className="pl-4">
-              <span className="text-slate-light">"name"</span>: <span className="text-[#A2E9F2]">"Diptanshu Das"</span>,
+              <span className="text-slate-light">"engineer"</span>:{" "}
+              <span className="text-[#A2E9F2]">"Diptanshu Das"</span>,
             </div>
             <div className="pl-4">
-              <span className="text-slate-light">"experience"</span>: <span className="text-cyan">6</span>,
+              <span className="text-slate-light">"email"</span>:{" "}
+              <span className="text-[#A2E9F2]">"diptanshudas920@gmail.com"</span>,
+            </div>
+            <div className="pl-4">
+              <span className="text-slate-light">"github"</span>:{" "}
+              <span className="text-[#A2E9F2]">"Dip123456789577"</span>,
             </div>
             <div className="pl-4">
               <span className="text-slate-light">"coreTech"</span>: [
@@ -307,25 +369,31 @@ high-performance, and responsive digital products.`;
               <span className="text-[#A2E9F2]">"TypeScript"</span>,
             </div>
             <div className="pl-8">
-              <span className="text-[#A2E9F2]">"React / Next.js"</span>,
+              <span className="text-[#A2E9F2]">"React 19 / Next.js"</span>,
             </div>
             <div className="pl-8">
-              <span className="text-[#A2E9F2]">"Node.js"</span>,
+              <span className="text-[#A2E9F2]">"TanStack Start / Nitro"</span>,
             </div>
             <div className="pl-8">
-              <span className="text-[#A2E9F2]">"PostgreSQL"</span>,
+              <span className="text-[#A2E9F2]">"Tailwind CSS v4"</span>,
             </div>
             <div className="pl-8">
-              <span className="text-[#A2E9F2]">"TailwindCSS"</span>
+              <span className="text-[#A2E9F2]">"Node.js / Express"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"PostgreSQL / MongoDB"</span>,
+            </div>
+            <div className="pl-8">
+              <span className="text-[#A2E9F2]">"Brevo Transactional API"</span>
+            </div>
+            <div className="pl-4">],</div>
+            <div className="pl-4">
+              <span className="text-slate-light">"securityCertified"</span>:{" "}
+              <span className="text-cyan">true</span>,
             </div>
             <div className="pl-4">
-              ],
-            </div>
-            <div className="pl-4">
-              <span className="text-slate-light">"creative"</span>: <span className="text-cyan">true</span>,
-            </div>
-            <div className="pl-4">
-              <span className="text-slate-light">"availableForHire"</span>: <span className="text-cyan">true</span>
+              <span className="text-slate-light">"availableForHire"</span>:{" "}
+              <span className="text-cyan">true</span>
             </div>
             <div>&#125;</div>
           </div>
@@ -340,15 +408,15 @@ high-performance, and responsive digital products.`;
                   h.type === "input"
                     ? "text-slate-light font-semibold"
                     : h.type === "system"
-                    ? "text-slate/60"
-                    : "text-cyan/90"
+                      ? "text-slate/60"
+                      : "text-cyan/90"
                 }
               >
                 {h.text}
               </div>
             ))}
             <div className="flex items-center gap-1.5 pt-1">
-              <span className="text-slate/70">guest@diptanshu.dev:~$</span>
+              <span className="text-slate/70">guest@diptanshudas:~$</span>
               <input
                 type="text"
                 value={cmd}
@@ -366,23 +434,32 @@ high-performance, and responsive digital products.`;
 
       {/* Terminal Suggestions / Quick Actions */}
       <div className="flex flex-wrap gap-2 items-center bg-navy/40 px-4 py-2.5 border-t border-navy-lighter/30">
-        <span className="text-[10px] text-slate/50 font-sans tracking-wide uppercase">Quick commands:</span>
-        {["help", "about", "skills", "projects", "contact", "clear"].map((suggestion) => (
-          <button
-            key={suggestion}
-            onClick={() => runSuggestedCommand(suggestion)}
-            className="px-2 py-0.5 rounded bg-navy-lighter/20 border border-navy-lighter/40 text-[10px] text-slate hover:text-cyan hover:border-cyan/40 hover:bg-cyan-soft/10 transition-colors"
-          >
-            {suggestion}
-          </button>
-        ))}
+        <span className="text-[10px] text-slate/50 font-sans tracking-wide uppercase">
+          Quick commands:
+        </span>
+        {["help", "about", "skills", "projects", "certs", "resume", "contact", "clear"].map(
+          (suggestion) => (
+            <button
+              key={suggestion}
+              onClick={() => runSuggestedCommand(suggestion)}
+              className="px-2 py-0.5 rounded bg-navy-lighter/20 border border-navy-lighter/40 text-[10px] text-slate hover:text-cyan hover:border-cyan/40 hover:bg-cyan-soft/10 transition-colors cursor-pointer"
+            >
+              {suggestion}
+            </button>
+          ),
+        )}
       </div>
     </div>
   );
 }
 
 /* ---------- Hero ---------- */
-const HERO_TYPED = ["Digital Experiences.", "Scalable Web Apps.", "Beautiful Interfaces.", "Production Software."];
+const HERO_TYPED = [
+  "Scalable Web Architectures.",
+  "Secure Cloud Backends.",
+  "High-Performance Interfaces.",
+  "Production-Grade Software.",
+];
 
 function useTyping(words: string[]) {
   const [i, setI] = useState(0);
@@ -390,10 +467,10 @@ function useTyping(words: string[]) {
   const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     const word = words[i % words.length];
-    const speed = deleting ? 40 : 90;
+    const speed = deleting ? 35 : 80;
     const t = setTimeout(() => {
       if (!deleting && text === word) {
-        setTimeout(() => setDeleting(true), 1600);
+        setTimeout(() => setDeleting(true), 1700);
         return;
       }
       if (deleting && text === "") {
@@ -408,18 +485,25 @@ function useTyping(words: string[]) {
   return text;
 }
 
-export function Hero() {
+export function Hero({ onOpenResume }: { onOpenResume?: () => void }) {
   const typed = useTyping(HERO_TYPED);
   return (
-    <section id="top" className="relative flex min-h-screen items-center px-5 pt-32 pb-16 md:px-10 lg:px-[120px]">
+    <section
+      id="top"
+      className="relative flex min-h-screen items-center px-5 pt-32 pb-16 md:px-10 lg:px-30"
+    >
       <FloatingParticles />
       <div className="relative mx-auto w-full max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-12 items-center">
           {/* Left Column - Intro */}
           <div className="lg:col-span-7 text-left">
-            <motion.p {...fadeUp} className="font-mono-label mb-6">
-              Hi, my name is
-            </motion.p>
+            <motion.div {...fadeUp} className="flex items-center gap-2 mb-6">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan" />
+              </span>
+              <span className="font-mono-label">Available for New Engineering Opportunities</span>
+            </motion.div>
             <motion.h1
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: 0.1 }}
@@ -432,8 +516,7 @@ export function Hero() {
               transition={{ ...fadeUp.transition, delay: 0.2 }}
               className="mt-2 text-[clamp(1.5rem,5vw,3.5rem)] font-extrabold leading-[1.15] tracking-[-0.03em] text-slate"
             >
-              I build{" "}
-              <span className="text-cyan">{typed}</span>
+              I build <span className="text-cyan">{typed}</span>
               <span className="animate-cursor text-cyan">|</span>
             </motion.h2>
             <motion.p
@@ -441,9 +524,9 @@ export function Hero() {
               transition={{ ...fadeUp.transition, delay: 0.35 }}
               className="mt-8 max-w-xl text-base md:text-lg leading-relaxed text-slate"
             >
-              I'm a Full Stack Developer passionate about creating modern, scalable,
-              interactive, and user-focused digital products — currently focused on
-              building accessible, high-performance web experiences end-to-end.
+              Full Stack Developer & Cybersecurity Intern specializing in crafting high-performance,
+              accessible, and resilient web applications. Blending technical precision with modern
+              visual craft from frontend architecture to cloud services.
             </motion.p>
             <motion.div
               {...fadeUp}
@@ -452,17 +535,17 @@ export function Hero() {
             >
               <MagneticButton
                 href="#projects"
-                className="group inline-flex items-center gap-2 rounded-md border border-cyan bg-cyan-soft px-7 py-4 font-mono text-sm text-cyan transition-all hover:cyan-glow hover:bg-cyan hover:text-navy"
+                className="group inline-flex items-center gap-2 rounded-md border border-cyan bg-cyan-soft px-7 py-4 font-mono text-sm text-cyan transition-all hover:cyan-glow hover:bg-cyan hover:text-navy cursor-pointer"
               >
-                View Projects
+                View Selected Works
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </MagneticButton>
               <MagneticButton
-                href="#"
-                className="group inline-flex items-center gap-2 rounded-md border border-navy-lighter px-7 py-4 font-mono text-sm text-slate-light transition-all hover:border-cyan hover:text-cyan"
+                onClick={onOpenResume}
+                className="group inline-flex items-center gap-2 rounded-md border border-navy-lighter px-7 py-4 font-mono text-sm text-slate-light transition-all hover:border-cyan hover:text-cyan cursor-pointer"
               >
                 <Download className="h-4 w-4" />
-                Download Resume
+                Inspect Resume
               </MagneticButton>
             </motion.div>
           </div>
@@ -473,7 +556,7 @@ export function Hero() {
             transition={{ ...fadeUp.transition, delay: 0.3 }}
             className="lg:col-span-5 w-full max-w-lg lg:max-w-none mx-auto"
           >
-            <InteractiveIDE />
+            <InteractiveIDE onOpenResume={onOpenResume} />
           </motion.div>
         </div>
       </div>
@@ -500,48 +583,72 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [inView, to]);
-  return <span ref={ref}>{n}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {n}
+      {suffix}
+    </span>
+  );
 }
 
 export function About() {
   return (
-    <section id="about" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
+    <section id="about" className="relative px-5 py-32 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
         <SectionLabel index="01" title="About Me" />
         <div className="grid gap-12 md:grid-cols-[1fr_280px] md:gap-16 lg:grid-cols-[1fr_320px]">
           <motion.div {...fadeUp} className="space-y-5 text-slate text-[17px] leading-[1.75]">
             <p>
-              Hello! I'm <span className="text-slate-light">Diptanshu</span>, a software
-              engineer who enjoys bridging the gap between design and engineering. My journey
-              into tech started back in 2018 when I decided to try my hand at building custom
-              themes — turns out hacking together CSS taught me a lot about visual craft.
+              Hello! I'm <span className="text-slate-light font-semibold">Diptanshu Das</span>, a
+              software engineer and cybersecurity researcher based in West Bengal, India. I am
+              currently pursuing my Bachelor of Technology in Computer Science & Engineering at{" "}
+              <span className="text-cyan font-medium">The Neotia University</span>.
             </p>
             <p>
-              Today, I focus on building high-performance, accessible, and beautiful web
-              applications for a diverse range of clients — from boutique startups to
-              global tech firms. I care about polish, performance, and the small details
-              that elevate a product from good to memorable.
+              My background bridges deep system engineering with modern design principles. Recently,
+              I completed an intensive{" "}
+              <span className="text-slate-light font-medium">
+                Cyber Security Internship at Global Secora Technology Pvt. Ltd.
+              </span>{" "}
+              (Credential ID: <span className="font-mono text-cyan text-sm">GST/STI/2026/0063</span>
+              ), focusing on practical vulnerability auditing, threat vectors, and secure
+              application development.
             </p>
-            <p>Here are a few technologies I've been working with recently:</p>
+            <p>
+              Additionally, I hold certified accreditations from{" "}
+              <span className="text-slate-light font-medium">Semrush Academy</span> in AI Search
+              Systems and SEO architecture. Whether architecting e-commerce engines like LUXE
+              Atelier or designing scalable full-stack APIs, I emphasize code cleanliness, sub-100ms
+              response times, and bulletproof security.
+            </p>
+            <p>Here are core technologies I work with daily:</p>
             <ul className="grid grid-cols-2 gap-x-2 gap-y-2 text-sm">
-              {["TypeScript", "React / Next.js", "Node.js", "PostgreSQL", "Three.js", "Tailwind CSS"].map(
-                (t) => (
-                  <li key={t} className="flex items-center gap-2 font-mono text-slate-light">
-                    <span className="text-cyan">▹</span>
-                    {t}
-                  </li>
-                )
-              )}
+              {[
+                "TypeScript & React 19",
+                "Next.js & TanStack Start",
+                "Node.js & Express.js",
+                "PostgreSQL & MongoDB",
+                "Brevo API & Cloud Services",
+                "Tailwind CSS v4",
+              ].map((t) => (
+                <li key={t} className="flex items-center gap-2 font-mono text-slate-light">
+                  <span className="text-cyan">▹</span>
+                  {t}
+                </li>
+              ))}
             </ul>
 
             <div className="grid grid-cols-2 gap-4 pt-8 sm:grid-cols-4">
               {[
                 { v: 45, s: "+", l: "Projects" },
-                { v: 22, s: "+", l: "Technologies" },
-                { v: 12, s: "+", l: "Certifications" },
-                { v: 8200, s: "+", l: "Coding Hours" },
+                { v: 18, s: "+", l: "Technologies" },
+                { v: 3, s: " Verified", l: "Credentials" },
+                { v: 5200, s: "+", l: "Coding Hours" },
               ].map((s) => (
-                <div key={s.l} className="rounded-md border border-navy-lighter/60 bg-navy-light/40 p-4">
+                <div
+                  key={s.l}
+                  className="rounded-md border border-navy-lighter/60 bg-navy-light/40 p-4"
+                >
                   <div className="font-mono text-2xl font-bold text-cyan">
                     <Counter to={s.v} suffix={s.s} />
                   </div>
@@ -551,8 +658,12 @@ export function About() {
             </div>
           </motion.div>
 
-          <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.15 }} className="group relative mx-auto w-full max-w-[300px]">
-            <div className="relative aspect-square overflow-hidden rounded-md">
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.15 }}
+            className="group relative mx-auto w-full max-w-75"
+          >
+            <div className="relative aspect-square overflow-hidden rounded-md border border-navy-lighter/80 shadow-2xl">
               <div className="absolute inset-0 bg-cyan mix-blend-multiply transition-opacity group-hover:opacity-0 z-10 pointer-events-none" />
               <img
                 src={profileImg}
@@ -578,28 +689,50 @@ export function About() {
 const SKILL_GROUPS = [
   {
     icon: Code2,
-    title: "Frontend",
-    items: ["HTML5", "CSS3 / Tailwind", "JavaScript", "TypeScript", "React", "Next.js"],
+    title: "Frontend Architecture",
+    items: [
+      "TypeScript & JavaScript (ESNext)",
+      "React 19 & Next.js",
+      "TanStack Start & Router",
+      "Tailwind CSS v4 & PostCSS",
+      "Framer Motion & Micro-interactions",
+      "Accessible UI (WCAG 2.1)",
+    ],
   },
   {
     icon: Server,
-    title: "Backend",
-    items: ["Node.js", "Express.js", "MongoDB", "PostgreSQL", "REST / GraphQL", "Redis"],
+    title: "Backend & Systems",
+    items: [
+      "Node.js & Express.js",
+      "Nitro Server Engine",
+      "PostgreSQL & Prisma",
+      "MongoDB & Mongoose",
+      "Redis Caching",
+      "RESTful & RPC Server Functions",
+    ],
   },
   {
     icon: PenTool,
-    title: "Tools & Design",
-    items: ["Git / GitHub", "Docker", "Figma", "Vite", "CI / CD", "Vercel"],
+    title: "Security & DevOps",
+    items: [
+      "Cybersecurity & Vulnerability Audit",
+      "Brevo Transactional Email API",
+      "Git & GitHub Workflow",
+      "Docker & Containerization",
+      "Vite & Build Tooling",
+      "Vercel / Edge Deployment",
+    ],
   },
 ];
 
 export function Skills() {
   return (
-    <section id="skills" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
+    <section id="skills" className="relative px-5 py-32 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
         <SectionLabel index="02" title="Technical Mastery" />
         <p className="mb-12 max-w-xl text-slate">
-          The tools and technologies I use to bring ambitious ideas to life.
+          The engineering toolkit, frameworks, and methodologies I leverage to architect
+          production-grade software.
         </p>
         <div className="grid gap-6 md:grid-cols-3">
           {SKILL_GROUPS.map((g, i) => (
@@ -612,7 +745,10 @@ export function Skills() {
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
-                style={{ background: "radial-gradient(400px circle at 50% 0%, rgba(100,255,218,0.08), transparent)" }}
+                style={{
+                  background:
+                    "radial-gradient(400px circle at 50% 0%, rgba(100,255,218,0.08), transparent)",
+                }}
               />
               <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-md bg-cyan-soft text-cyan">
                 <g.icon className="h-5 w-5" />
@@ -637,43 +773,52 @@ export function Skills() {
 /* ---------- Experience ---------- */
 const TIMELINE = [
   {
-    icon: Briefcase,
-    role: "Senior Full Stack Developer",
-    org: "Quantum Systems Co.",
-    period: "Jan 2023 — Present",
+    icon: ShieldCheck,
+    role: "Cyber Security Intern",
+    org: "Global Secora Technology Pvt. Ltd.",
+    period: "June 2026 — July 2026",
+    badge: "GST/STI/2026/0063",
     bullets: [
-      "Architected and led development of the company's flagship SaaS product using Next.js and Go.",
-      "Mentored junior developers and introduced modern CI/CD practices, reducing deployment time by 40%.",
+      "Completed rigorous Summer Training cum Internship Program focusing on hands-on cybersecurity practices and vulnerability assessments.",
+      "Conducted threat audits and analyzed web application attack surfaces to ensure resilience against common OWASP vectors.",
+      "Delivered assigned security modules under the guidance of Founder & CEO Souvik Biswas.",
     ],
   },
   {
     icon: Briefcase,
-    role: "Full Stack Developer",
-    org: "Velocity Digital",
-    period: "Jun 2020 — Dec 2022",
+    role: "Full Stack Developer & Independent Consultant",
+    org: "Production Software & Web Solutions",
+    period: "2024 — Present",
+    badge: "Active",
     bullets: [
-      "Developed high-performance e-commerce engines for luxury brands with sub-100ms response times.",
-      "Integrated headless CMS solutions (Sanity / Strapi) for dynamic content management.",
+      "Architected and deployed production web applications including LUXE Atelier e-commerce and FORMA Kitchen Studio.",
+      "Achieved sub-100ms interaction latencies and 99+ Lighthouse performance scores across deployed client projects.",
+      "Integrated transactional mail pipelines with Brevo API, responsive design with Tailwind CSS v4, and type-safe backend server functions.",
     ],
   },
   {
     icon: GraduationCap,
-    role: "B.Tech, Computer Science",
-    org: "Institute of Engineering",
-    period: "2016 — 2020",
+    role: "B.Tech, Computer Science & Engineering",
+    org: "The Neotia University",
+    period: "Undergraduate Degree",
+    badge: "B.Tech CSE",
     bullets: [
-      "Graduated with First Class Honours. Specialized in distributed systems and human-computer interaction.",
+      "Specializing in distributed computing, algorithms, human-computer interaction, and secure information systems.",
+      "Building practical applications and contributing to full-stack engineering initiatives.",
     ],
   },
 ];
 
 export function Experience() {
   return (
-    <section id="experience" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
+    <section id="experience" className="relative px-5 py-32 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
-        <SectionLabel index="03" title="Where I've Worked" />
+        <SectionLabel index="03" title="Experience & Credentials" />
         <div className="relative">
-          <div aria-hidden className="absolute left-4 top-2 bottom-2 w-px bg-navy-lighter md:left-5" />
+          <div
+            aria-hidden
+            className="absolute left-4 top-2 bottom-2 w-px bg-navy-lighter md:left-5"
+          />
           <div className="space-y-8">
             {TIMELINE.map((item, i) => (
               <motion.div
@@ -689,11 +834,15 @@ export function Experience() {
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <div>
                       <h3 className="text-lg font-bold text-slate-light">
-                        {item.role}{" "}
-                        <span className="text-cyan">@ {item.org}</span>
+                        {item.role} <span className="text-cyan">@ {item.org}</span>
                       </h3>
                     </div>
-                    <span className="font-mono text-xs text-slate">{item.period}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded border border-cyan/30 bg-cyan/10 px-2 py-0.5 font-mono text-[11px] text-cyan">
+                        {item.badge}
+                      </span>
+                      <span className="font-mono text-xs text-slate">{item.period}</span>
+                    </div>
                   </div>
                   <ul className="mt-4 space-y-2 text-slate">
                     {item.bullets.map((b) => (
@@ -728,7 +877,10 @@ function TiltCard({ children }: { children: React.ReactNode }) {
         x.set((e.clientX - r.left) / r.width - 0.5);
         y.set((e.clientY - r.top) / r.height - 0.5);
       }}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
+      onMouseLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
       style={{ rotateX: rX, rotateY: rY, transformPerspective: 1000 }}
       className="will-change-transform"
     >
@@ -745,7 +897,7 @@ const PROJECTS = [
     tags: ["React", "TypeScript", "Tailwind CSS", "Storefront", "UX/UI"],
     featured: true,
     liveUrl: "https://luxe-e-commerce-refined.vercel.app/",
-    githubUrl: "https://github.com/diptanshu-das",
+    githubUrl: "https://github.com/Dip123456789577",
     metrics: [
       { v: "99+", l: "Lighthouse Score" },
       { v: "<100ms", l: "Interaction Speed" },
@@ -758,7 +910,7 @@ const PROJECTS = [
     img: projectBrandCatalyst,
     tags: ["Next.js", "TypeScript", "Framer Motion", "Growth Agency"],
     liveUrl: "https://brand-catalyst-nine.vercel.app/",
-    githubUrl: "https://github.com/diptanshu-das",
+    githubUrl: "https://github.com/Dip123456789577",
   },
   {
     title: "FORMA Kitchen Studio",
@@ -766,7 +918,7 @@ const PROJECTS = [
     img: projectFormFlow,
     tags: ["React", "Interactive Slider", "Tailwind CSS", "Architecture"],
     liveUrl: "https://form-flow-kitchens.vercel.app/",
-    githubUrl: "https://github.com/diptanshu-das",
+    githubUrl: "https://github.com/Dip123456789577",
   },
   {
     title: "Definitely Not A Drug Marketplace",
@@ -774,13 +926,13 @@ const PROJECTS = [
     img: projectDrugGang,
     tags: ["React", "TypeScript", "Cyberpunk UI", "Comedy Parody"],
     liveUrl: "https://drug-gang.vercel.app/",
-    githubUrl: "https://github.com/diptanshu-das",
+    githubUrl: "https://github.com/Dip123456789577",
   },
 ];
 
 export function Projects() {
   return (
-    <section id="projects" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
+    <section id="projects" className="relative px-5 py-32 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
         <SectionLabel index="04" title="Selected Works" />
 
@@ -800,7 +952,7 @@ export function Projects() {
                   loading="lazy"
                   width={1280}
                   height={800}
-                  className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="aspect-16/10 w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-navy/40 mix-blend-multiply transition-opacity group-hover:opacity-0" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-navy/60 backdrop-blur-[2px]">
@@ -831,14 +983,18 @@ export function Projects() {
                 {PROJECTS[0].metrics?.map((s) => (
                   <div key={s.l}>
                     <div className="font-mono text-xl font-bold text-cyan">{s.v}</div>
-                    <div className="mt-1 text-[11px] uppercase tracking-wider text-slate">{s.l}</div>
+                    <div className="mt-1 text-[11px] uppercase tracking-wider text-slate">
+                      {s.l}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
             <ul className="mt-5 flex flex-wrap gap-2 font-mono text-xs">
               {PROJECTS[0].tags.map((t) => (
-                <li key={t} className="border border-cyan/40 bg-cyan-soft px-2.5 py-1 text-cyan">{t}</li>
+                <li key={t} className="border border-cyan/40 bg-cyan-soft px-2.5 py-1 text-cyan">
+                  {t}
+                </li>
               ))}
             </ul>
             <div className="mt-6 flex gap-4">
@@ -847,7 +1003,7 @@ export function Projects() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-light hover:text-cyan transition-colors"
-                aria-label="GitHub repo"
+                aria-label="GitHub profile"
               >
                 <Github className="h-5 w-5" />
               </a>
@@ -885,7 +1041,7 @@ export function Projects() {
                   loading="lazy"
                   width={1280}
                   height={800}
-                  className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="aspect-16/10 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-navy/30 mix-blend-multiply transition-opacity group-hover:opacity-0" />
               </a>
@@ -926,7 +1082,12 @@ export function Projects() {
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-slate">{p.desc}</p>
                 <ul className="mt-5 flex flex-wrap gap-2 font-mono text-[11px]">
                   {p.tags.map((t) => (
-                    <li key={t} className="border border-cyan/40 bg-cyan-soft px-2 py-0.5 text-cyan">{t}</li>
+                    <li
+                      key={t}
+                      className="border border-cyan/40 bg-cyan-soft px-2 py-0.5 text-cyan"
+                    >
+                      {t}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -940,14 +1101,19 @@ export function Projects() {
 
 /* ---------- GitHub & Certifications ---------- */
 export function GitHubBlock() {
-  // Decorative contribution grid (deterministic intensities)
   const cells = Array.from({ length: 7 * 26 }, (_, i) => {
     const v = (Math.sin(i * 0.7) + 1) / 2;
     return v < 0.2 ? 0 : v < 0.45 ? 1 : v < 0.7 ? 2 : v < 0.9 ? 3 : 4;
   });
-  const shades = ["rgba(35,53,84,0.5)", "rgba(100,255,218,0.18)", "rgba(100,255,218,0.38)", "rgba(100,255,218,0.6)", "rgba(100,255,218,0.9)"];
+  const shades = [
+    "rgba(35,53,84,0.5)",
+    "rgba(100,255,218,0.18)",
+    "rgba(100,255,218,0.38)",
+    "rgba(100,255,218,0.6)",
+    "rgba(100,255,218,0.9)",
+  ];
   return (
-    <section className="relative px-5 py-24 md:px-10 lg:px-[120px]">
+    <section className="relative px-5 py-24 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
         <SectionLabel title="On GitHub" />
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -955,36 +1121,54 @@ export function GitHubBlock() {
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-slate-light">
                 <Github className="h-4 w-4 text-cyan" />
-                <span className="font-mono text-sm">contributions — last 6 months</span>
+                <span className="font-mono text-sm">contributions — activity stream</span>
               </div>
-              <span className="font-mono text-xs text-slate">@diptanshu</span>
+              <a
+                href="https://github.com/Dip123456789577"
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-xs text-cyan hover:underline inline-flex items-center gap-1"
+              >
+                @Dip123456789577
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
             </div>
-            <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto">
+            <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto pb-2">
               {cells.map((c, i) => (
-                <span
-                  key={i}
-                  className="h-3 w-3 rounded-sm"
-                  style={{ background: shades[c] }}
-                />
+                <span key={i} className="h-3 w-3 rounded-sm" style={{ background: shades[c] }} />
               ))}
             </div>
-            <div className="mt-4 flex items-center gap-2 font-mono text-[11px] text-slate">
-              less
-              {shades.map((s, i) => (
-                <span key={i} className="h-3 w-3 rounded-sm" style={{ background: s }} />
-              ))}
-              more
+            <div className="mt-4 flex items-center justify-between font-mono text-[11px] text-slate">
+              <div className="flex items-center gap-2">
+                less
+                {shades.map((s, i) => (
+                  <span key={i} className="h-3 w-3 rounded-sm" style={{ background: s }} />
+                ))}
+                more
+              </div>
+              <a
+                href="https://github.com/Dip123456789577"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan hover:underline"
+              >
+                View GitHub Repositories →
+              </a>
             </div>
           </motion.div>
-          <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.1 }}
+            className="grid grid-cols-2 gap-4 lg:grid-cols-1"
+          >
             {[
-              { l: "Repositories", v: 84 },
-              { l: "Stars received", v: 1240 },
-              { l: "Pull requests", v: 312 },
+              { l: "Public Repositories", v: 45 },
+              { l: "Contributions logged", v: 1140 },
+              { l: "Pull requests & commits", v: 380 },
             ].map((s) => (
               <div key={s.l} className="glass-panel rounded-md p-5">
                 <div className="font-mono text-2xl font-bold text-cyan">
-                  <Counter to={s.v} />
+                  <Counter to={s.v} suffix="+" />
                 </div>
                 <div className="mt-1 text-xs uppercase tracking-wider text-slate">{s.l}</div>
               </div>
@@ -1044,7 +1228,6 @@ const CERTS = [
 export function Certifications() {
   const [activeCert, setActiveCert] = useState<(typeof CERTS)[0] | null>(null);
 
-  // Close modal on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActiveCert(null);
@@ -1054,7 +1237,7 @@ export function Certifications() {
   }, []);
 
   return (
-    <section id="certifications" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
+    <section id="certifications" className="relative px-5 py-32 md:px-10 lg:px-30">
       <div className="mx-auto max-w-6xl">
         <SectionLabel index="05" title="Certifications & Credentials" />
 
@@ -1071,7 +1254,9 @@ export function Certifications() {
                 onClick={() => setActiveCert(c)}
                 className="relative cursor-pointer overflow-hidden bg-navy-dark border-b border-navy-lighter/60"
               >
-                <div className={`${c.aspect} w-full overflow-hidden flex items-center justify-center p-3 bg-navy-dark/70`}>
+                <div
+                  className={`${c.aspect} w-full overflow-hidden flex items-center justify-center p-3 bg-navy-dark/70`}
+                >
                   <img
                     src={c.img}
                     alt={c.title}
@@ -1103,13 +1288,18 @@ export function Certifications() {
                 <p className="mt-1 text-sm text-slate">{c.org}</p>
 
                 <div className="mt-3 rounded bg-navy-dark/60 border border-navy-lighter/40 p-2.5 font-mono text-[11px]">
-                  <div className="text-[10px] uppercase tracking-wider text-slate">Credential ID</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate">
+                    Credential ID
+                  </div>
                   <div className="truncate text-cyan font-semibold">{c.credentialId}</div>
                 </div>
 
                 <ul className="mt-4 flex flex-wrap gap-1.5 font-mono text-[10px]">
                   {c.tags.map((t) => (
-                    <li key={t} className="border border-cyan/30 bg-cyan-soft px-2 py-0.5 text-cyan">
+                    <li
+                      key={t}
+                      className="border border-cyan/30 bg-cyan-soft px-2 py-0.5 text-cyan"
+                    >
                       {t}
                     </li>
                   ))}
@@ -1144,8 +1334,13 @@ export function Certifications() {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-navy-lighter/70 bg-navy px-5 py-4">
               <div>
-                <h4 className="font-bold text-slate-light text-base sm:text-lg">{activeCert.title}</h4>
-                <p className="text-xs text-slate">{activeCert.org} · <span className="font-mono text-cyan">{activeCert.credentialId}</span></p>
+                <h4 className="font-bold text-slate-light text-base sm:text-lg">
+                  {activeCert.title}
+                </h4>
+                <p className="text-xs text-slate">
+                  {activeCert.org} ·{" "}
+                  <span className="font-mono text-cyan">{activeCert.credentialId}</span>
+                </p>
               </div>
               <button
                 type="button"
@@ -1168,7 +1363,9 @@ export function Certifications() {
 
             {/* Modal Footer */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-navy-lighter/70 bg-navy px-5 py-3 text-xs">
-              <span className="font-mono text-slate">Recipient: <strong className="text-slate-light">{activeCert.recipient}</strong></span>
+              <span className="font-mono text-slate">
+                Recipient: <strong className="text-slate-light">{activeCert.recipient}</strong>
+              </span>
               <a
                 href={activeCert.img}
                 target="_blank"
@@ -1186,116 +1383,390 @@ export function Certifications() {
   );
 }
 
-/* ---------- Contact ---------- */
-function Field({ label, type = "text", textarea = false, name }: { label: string; type?: string; textarea?: boolean; name: string }) {
-  const [val, setVal] = useState("");
-  const [focus, setFocus] = useState(false);
-  const float = focus || val.length > 0;
-  return (
-    <div className="relative">
-      <label
-        className={`pointer-events-none absolute left-0 origin-left font-mono text-slate transition-all ${
-          float ? "top-0 text-[11px] text-cyan" : "top-5 text-sm"
-        }`}
-      >
-        {label}
-      </label>
-      {textarea ? (
-        <textarea
-          name={name}
-          rows={4}
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          className="block w-full resize-none border-b border-navy-lighter bg-transparent px-0 pb-2 pt-5 text-slate-light outline-none focus:border-cyan"
-          maxLength={1000}
-        />
-      ) : (
-        <input
-          name={name}
-          type={type}
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          className="block w-full border-b border-navy-lighter bg-transparent px-0 pb-2 pt-5 text-slate-light outline-none focus:border-cyan"
-          maxLength={255}
-        />
-      )}
-    </div>
-  );
-}
+/* ---------- Contact Section (Brevo-Powered) ---------- */
 
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<"idle" | "success" | "error">("idle");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [ipAuthNotice, setIpAuthNotice] = useState(false);
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText("diptanshudas920@gmail.com");
+    setCopied(true);
+    toast.success("Email copied to clipboard: diptanshudas920@gmail.com");
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.subject.trim() ||
+      !formData.message.trim()
+    ) {
+      toast.error("Please fill in all contact fields before sending.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionStatus("idle");
+    setStatusMessage("");
+    setIpAuthNotice(false);
+
+    try {
+      const response = await submitContactForm({
+        data: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+        },
+      });
+
+      if (response.success) {
+        setSubmissionStatus("success");
+        setStatusMessage(
+          response.message || "Your message has been delivered directly to Diptanshu's inbox!",
+        );
+        toast.success("Message sent successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setSubmissionStatus("error");
+        setStatusMessage(response.error || "Failed to deliver message.");
+        if (
+          response.error?.includes("authorised_ips") ||
+          response.details?.includes("authorised_ips")
+        ) {
+          setIpAuthNotice(true);
+        }
+        toast.error(response.error || "Could not deliver email.");
+      }
+    } catch (err: unknown) {
+      console.error("Submission error:", err);
+      setSubmissionStatus("error");
+      const errorMsg = err instanceof Error ? err.message : "An unexpected network error occurred.";
+      setStatusMessage(errorMsg);
+      toast.error("Error communicating with mail server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <section id="contact" className="relative px-5 py-32 md:px-10 lg:px-[120px]">
-      <div className="mx-auto max-w-2xl text-center">
-        <motion.p {...fadeUp} className="font-mono-label mb-4">06. What's Next?</motion.p>
-        <motion.h2 {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="text-4xl md:text-5xl font-bold tracking-tight text-slate-light">
-          Get in Touch
-        </motion.h2>
-        <motion.p {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.2 }} className="mt-6 text-slate leading-relaxed">
-          My inbox is always open. Whether you have a question or just want to say hi,
-          I'll try my best to get back to you.
-        </motion.p>
+    <section id="contact" className="relative px-5 py-32 md:px-10 lg:px-30">
+      <div className="mx-auto max-w-6xl">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <motion.p {...fadeUp} className="font-mono-label mb-3">
+            06. What's Next?
+          </motion.p>
+          <motion.h2
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.1 }}
+            className="text-4xl md:text-5xl font-bold tracking-tight text-slate-light"
+          >
+            Get In Touch
+          </motion.h2>
+          <motion.p
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.2 }}
+            className="mt-4 text-slate leading-relaxed"
+          >
+            Whether you have a technical project in mind, an engineering role, or just want to
+            discuss web systems and cybersecurity, my inbox is always open.
+          </motion.p>
+        </div>
 
-        <motion.form
-          {...fadeUp}
-          transition={{ ...fadeUp.transition, delay: 0.3 }}
-          onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-          className="mt-12 glass-panel rounded-md p-8 text-left"
-        >
-          <div className="grid gap-8 md:grid-cols-2">
-            <Field name="name" label="FULL NAME" />
-            <Field name="email" type="email" label="EMAIL ADDRESS" />
-          </div>
-          <div className="mt-8">
-            <Field name="subject" label="SUBJECT" />
-          </div>
-          <div className="mt-8">
-            <Field name="message" label="YOUR MESSAGE" textarea />
-          </div>
+        <div className="grid gap-10 lg:grid-cols-12 items-start">
+          {/* Left Column: Direct channels & Quick Connect */}
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.2 }}
+            className="lg:col-span-5 space-y-5"
+          >
+            {/* Quick Email Card */}
+            <div className="glass-panel rounded-lg p-6 border border-navy-lighter/60">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-mono text-xs uppercase tracking-wider text-cyan">
+                  Direct Email
+                </span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan" />
+                </span>
+              </div>
+              <p className="text-lg font-bold text-slate-light font-mono select-all break-all">
+                diptanshudas920@gmail.com
+              </p>
+              <div className="mt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-cyan/40 bg-cyan-soft px-4 py-2 text-xs font-mono text-cyan transition-all hover:bg-cyan hover:text-navy cursor-pointer"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copied ? "Copied to Clipboard" : "Copy Email"}</span>
+                </button>
+                <a
+                  href="mailto:diptanshudas920@gmail.com"
+                  className="inline-flex items-center justify-center rounded border border-navy-lighter px-4 py-2 text-xs font-mono text-slate-light transition-all hover:border-cyan hover:text-cyan"
+                >
+                  Open Mail App
+                </a>
+              </div>
+            </div>
 
-          <div className="mt-10 flex items-center justify-between gap-4">
-            <span className={`font-mono text-xs transition-opacity ${sent ? "opacity-100 text-cyan" : "opacity-0"}`}>
-              ✓ Message sent — I'll be in touch soon.
-            </span>
-            <button
-              type="submit"
-              className="group inline-flex items-center gap-2 rounded-md border border-cyan bg-cyan-soft px-6 py-3 font-mono text-sm text-cyan transition-all hover:cyan-glow hover:bg-cyan hover:text-navy"
-            >
-              Send Message
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-          </div>
-        </motion.form>
+            {/* Quick Details */}
+            <div className="glass-panel rounded-lg p-6 border border-navy-lighter/60 space-y-4 text-sm">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-4 w-4 text-cyan shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-slate-light font-medium block">Location</span>
+                  <span className="text-slate text-xs">West Bengal, India (UTC +05:30)</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Clock className="h-4 w-4 text-cyan shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-slate-light font-medium block">Response SLA</span>
+                  <span className="text-slate text-xs">
+                    Prompt replies guaranteed within 24 hours
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <Github className="h-4 w-4 text-cyan shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-slate-light font-medium block">GitHub Handle</span>
+                  <a
+                    href="https://github.com/Dip123456789577"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-cyan text-xs font-mono hover:underline inline-flex items-center gap-1"
+                  >
+                    @Dip123456789577
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Availability Banner */}
+            <div className="rounded-lg border border-cyan/30 bg-cyan-soft/30 p-4 text-xs font-mono text-cyan flex items-center gap-3">
+              <Sparkles className="h-4 w-4 shrink-0" />
+              <span>
+                Available for full-time engineering roles, high-impact freelance projects, and
+                consultations.
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Right Column: Direct Contact Form (Brevo-Backed) */}
+          <motion.div
+            {...fadeUp}
+            transition={{ ...fadeUp.transition, delay: 0.3 }}
+            className="lg:col-span-7"
+          >
+            <div className="glass-panel rounded-lg p-8 border border-navy-lighter/60 text-left relative overflow-hidden">
+              <div className="flex items-center justify-between border-b border-navy-lighter/40 pb-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-light">Send a Direct Message</h3>
+                  <p className="text-xs text-slate mt-0.5">
+                    Powered by transactional Brevo mail engine
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 text-[11px] font-mono text-cyan">
+                  <span className="h-2 w-2 rounded-full bg-cyan animate-pulse" />
+                  Live Service
+                </div>
+              </div>
+
+              {submissionStatus === "success" ? (
+                <div className="py-8 text-center space-y-4">
+                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-cyan/40 bg-cyan-soft text-cyan">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-light">Message Sent!</h4>
+                  <p className="text-sm text-slate max-w-md mx-auto leading-relaxed">
+                    {statusMessage}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSubmissionStatus("idle")}
+                    className="mt-4 inline-flex items-center gap-2 rounded border border-cyan/40 bg-cyan/10 px-5 py-2 font-mono text-xs text-cyan transition-colors hover:bg-cyan hover:text-navy cursor-pointer"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {submissionStatus === "error" && (
+                    <div className="rounded-lg border border-red-500/40 bg-red-950/40 p-4 text-xs text-red-200 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="block text-red-300">Message Delivery Notice</strong>
+                          <span>{statusMessage}</span>
+                        </div>
+                      </div>
+                      {ipAuthNotice && (
+                        <div className="mt-2 pt-2 border-t border-red-500/30 text-[11px] text-red-300">
+                          <strong>Brevo Account Security:</strong> Please whitelist your IP in Brevo
+                          settings at{" "}
+                          <a
+                            href="https://app.brevo.com/security/authorised_ips"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline text-cyan"
+                          >
+                            https://app.brevo.com/security/authorised_ips
+                          </a>
+                          . In the meantime, you can directly email{" "}
+                          <a
+                            href="mailto:diptanshudas920@gmail.com"
+                            className="underline text-cyan"
+                          >
+                            diptanshudas920@gmail.com
+                          </a>
+                          .
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className="block font-mono text-xs uppercase tracking-wider text-slate mb-2">
+                        Your Full Name <span className="text-cyan">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        disabled={isSubmitting}
+                        placeholder="Ada Lovelace"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full rounded border border-navy-lighter bg-navy/60 px-4 py-3 text-sm text-slate-light placeholder:text-slate/40 outline-none transition-colors focus:border-cyan"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-mono text-xs uppercase tracking-wider text-slate mb-2">
+                        Your Email Address <span className="text-cyan">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        disabled={isSubmitting}
+                        placeholder="ada@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full rounded border border-navy-lighter bg-navy/60 px-4 py-3 text-sm text-slate-light placeholder:text-slate/40 outline-none transition-colors focus:border-cyan"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-xs uppercase tracking-wider text-slate mb-2">
+                      Subject <span className="text-cyan">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      disabled={isSubmitting}
+                      placeholder="Project Inquiry / Full Stack Role"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className="w-full rounded border border-navy-lighter bg-navy/60 px-4 py-3 text-sm text-slate-light placeholder:text-slate/40 outline-none transition-colors focus:border-cyan"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-mono text-xs uppercase tracking-wider text-slate mb-2">
+                      Your Message <span className="text-cyan">*</span>
+                    </label>
+                    <textarea
+                      required
+                      rows={5}
+                      disabled={isSubmitting}
+                      placeholder="Hi Diptanshu, I'd like to talk about..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className="w-full resize-y rounded border border-navy-lighter bg-navy/60 px-4 py-3 text-sm text-slate-light placeholder:text-slate/40 outline-none transition-colors focus:border-cyan"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                    <span className="font-mono text-xs text-slate">
+                      Direct delivery to Diptanshu's verified inbox
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="group inline-flex items-center gap-2 rounded border border-cyan bg-cyan-soft px-7 py-3 font-mono text-sm text-cyan transition-all hover:bg-cyan hover:text-navy hover:cyan-glow cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Dispatching...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Send Message</span>
+                          <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ---------- Footer + side rails ---------- */
+/* ---------- Side Rails & Footer ---------- */
+
 export function SideRails() {
   return (
     <>
       <div className="fixed bottom-0 left-6 z-40 hidden flex-col items-center gap-6 lg:flex">
         {[
-          { icon: Github, href: "#", label: "GitHub" },
-          { icon: Linkedin, href: "#", label: "LinkedIn" },
-          { icon: Twitter, href: "#", label: "Twitter" },
-          { icon: Mail, href: "#contact", label: "Email" },
+          { icon: Github, href: "https://github.com/Dip123456789577", label: "GitHub" },
+          { icon: Mail, href: "mailto:diptanshudas920@gmail.com", label: "Email" },
         ].map((s) => (
-          <a key={s.label} href={s.href} aria-label={s.label} className="text-slate-light transition-all hover:-translate-y-1 hover:text-cyan">
+          <a
+            key={s.label}
+            href={s.href}
+            target={s.href.startsWith("http") ? "_blank" : undefined}
+            rel={s.href.startsWith("http") ? "noreferrer" : undefined}
+            aria-label={s.label}
+            className="text-slate-light transition-all hover:-translate-y-1 hover:text-cyan"
+          >
             <s.icon className="h-4 w-4" />
           </a>
         ))}
         <span className="h-24 w-px bg-slate-light/40" />
       </div>
       <div className="fixed bottom-0 right-8 z-40 hidden flex-col items-center gap-6 lg:flex">
-        <a href="mailto:hello@diptanshu.dev" className="font-mono text-xs tracking-widest text-slate-light vertical-rl transition-colors hover:text-cyan" style={{ writingMode: "vertical-rl" }}>
-          hello@diptanshu.dev
+        <a
+          href="mailto:diptanshudas920@gmail.com"
+          className="font-mono text-xs tracking-widest text-slate-light vertical-rl transition-colors hover:text-cyan"
+          style={{ writingMode: "vertical-rl" }}
+        >
+          diptanshudas920@gmail.com
         </a>
         <span className="h-24 w-px bg-slate-light/40" />
       </div>
@@ -1305,18 +1776,35 @@ export function SideRails() {
 
 export function Footer() {
   return (
-    <footer className="relative px-5 pb-12 pt-16 md:px-10 lg:px-[120px]">
+    <footer className="relative px-5 pb-12 pt-16 md:px-10 lg:px-30">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 border-t border-navy-lighter/60 pt-10">
         <div className="flex gap-6 lg:hidden">
-          {[Github, Linkedin, Twitter, Mail].map((Icon, i) => (
-            <a key={i} href="#" className="text-slate-light hover:text-cyan">
-              <Icon className="h-5 w-5" />
+          {[
+            { icon: Github, href: "https://github.com/Dip123456789577", label: "GitHub" },
+            { icon: Mail, href: "mailto:diptanshudas920@gmail.com", label: "Email" },
+          ].map((item, i) => (
+            <a
+              key={i}
+              href={item.href}
+              target={item.href.startsWith("http") ? "_blank" : undefined}
+              rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+              className="text-slate-light hover:text-cyan"
+              aria-label={item.label}
+            >
+              <item.icon className="h-5 w-5" />
             </a>
           ))}
         </div>
-        <p className="text-center font-mono text-xs text-slate">
-          Designed & built by <span className="text-cyan">Diptanshu Das</span> · © {new Date().getFullYear()}
-        </p>
+        <div className="flex flex-col sm:flex-row items-center gap-2 text-center font-mono text-xs text-slate">
+          <span>
+            Designed & built with precision by <strong className="text-cyan">Diptanshu Das</strong>
+          </span>
+          <span className="hidden sm:inline">·</span>
+          <span>© {new Date().getFullYear()} All Rights Reserved</span>
+        </div>
+        <div className="text-[11px] font-mono text-slate/60">
+          The Neotia University · Global Secora Technology · Semrush Certified
+        </div>
       </div>
     </footer>
   );
